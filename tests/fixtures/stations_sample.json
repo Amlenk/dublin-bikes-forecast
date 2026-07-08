@@ -1,0 +1,53 @@
+[
+  {
+    "number": 56,
+    "contract_name": "dublin",
+    "name": "MOUNT STREET LOWER",
+    "address": "Mount Street Lower",
+    "position": {
+      "lat": 53.3379853,
+      "lng": -6.2415388
+    },
+    "banking": false,
+    "bonus": false,
+    "bike_stands": 40,
+    "available_bike_stands": 22,
+    "available_bikes": 18,
+    "status": "OPEN",
+    "last_update": 1783535945000
+  },
+  {
+    "number": 42,
+    "contract_name": "dublin",
+    "name": "SMITHFIELD NORTH",
+    "address": "Smithfield North",
+    "position": {
+      "lat": 53.349562,
+      "lng": -6.278198
+    },
+    "banking": false,
+    "bonus": false,
+    "bike_stands": 30,
+    "available_bike_stands": 14,
+    "available_bikes": 15,
+    "status": "OPEN",
+    "last_update": 1783535743000
+  },
+  {
+    "number": 54,
+    "contract_name": "dublin",
+    "name": "CLONMEL STREET",
+    "address": "Clonmel Street",
+    "position": {
+      "lat": 53.336021,
+      "lng": -6.26298
+    },
+    "banking": false,
+    "bonus": false,
+    "bike_stands": 33,
+    "available_bike_stands": 33,
+    "available_bikes": 0,
+    "status": "OPEN",
+    "last_update": 1783536268000
+  }
+]
