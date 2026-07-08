@@ -135,7 +135,8 @@
   guides, checked 2026-07-09.
 - **Revisit trigger:** Phase 2's deploy requires a card, the build
   fails on the free instance, or measured cold start exceeds 120 s.
-- **Status:** STANDING
+- **Status:** CONFIRMED by Phase 2 anchor (2026-07-09): no card asked,
+  build succeeded, page loaded near-instantly on mobile data.
 
 ### A4 — Station identity joins across live feed and historical data
 - **Assumed:** The station chosen in Phase 1 appears in the historical

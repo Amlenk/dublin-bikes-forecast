@@ -20,32 +20,34 @@ phase finished — and immediately after running any phase's external anchor.
 
 ## Current State
 
-Phase 1 CLOSED (anchor PASS, 2026-07-09). Proven: the JCDecaux live feed
-(`api.jcdecaux.com/vls/v1/stations?contract=dublin`) works with a free
-key — 114 stations, station-level `available_bikes`, feed lag ~2–5 min.
-**Chosen project station: `MOUNT STREET LOWER` (capacity 40).**
-**Winning endpoint: JCDecaux (primary); Smart Dublin fallback never
-needed.** Exists in repo: `scripts/probe_live_feed.py`, `.gitignore`,
-`.env` (key, not committed), `.venv` (Python 3.14.4 — satisfies the
-"≥3.11" requirement in the phase files). No unit tests this phase (the
-phase file's "none required" clause applies). No GitHub repo, no HF
-Space yet.
+Phases 1 and 2 CLOSED (anchors PASS — see Anchor Results). **The
+walking skeleton is live: https://dublin-bikes-forecast.onrender.com**
+— a Dockerized FastAPI app on a Render free web service (region
+Frankfurt), auto-deployed from the public GitHub repo
+`Amlenk/dublin-bikes-forecast` on every push to `main`. It shows MOUNT
+STREET LOWER's live availability (JCDecaux feed) + a persistence
+placeholder forecast labeled `baseline v0 (persistence)`, with feed age
+in minutes and Dublin wall-clock time. `JCDECAUX_API_KEY` is set as a
+Render environment variable. 7 unit tests passing (`pytest`). Host was
+changed HF Spaces → Render mid-Phase-2 (see Locked decisions &
+assumptions note below). Not yet: historical data, trained model,
+database, scheduled ingestion.
 
 ## The ONE next task
 
-Execute `docs/phase-2.md` — deploy the walking skeleton: Dockerized
-FastAPI page on a free Hugging Face Space showing MOUNT STREET LOWER's
-live availability plus a labeled persistence placeholder forecast. Its
-anchor: page loads on a phone over mobile data, count matches the
-official dublinbikes map ±2 same-minute, timestamp < 15 min,
-`baseline v0 (persistence)` label visible.
+Execute `docs/phase-3.md` — obtain and audit a historical dublinbikes
+dataset (data.gov.ie / Smart Dublin) covering MOUNT STREET LOWER at
+≤ 60-min granularity for ≥ 60 days. Its anchor: audit script output
+meets the thresholds fixed in the phase file.
 
 ## How to verify the previous phase actually works
 
-Run `Z:\Claude\dublin-bikes-forecast\.venv\Scripts\python.exe scripts/probe_live_feed.py`
-from the repo root. Expected: `HTTP status: 200`, `stations: 114`
-(±small churn), a `MOUNT STREET LOWER` line with bikes 0–40 and a
-`last_update` < 15 minutes old.
+Open https://dublin-bikes-forecast.onrender.com on a phone using mobile
+data (allow up to ~60 s if the free service is waking). Expected: page
+shows `MOUNT STREET LOWER`, a bikes-now integer 0–40 that matches the
+official dublinbikes map ±2 at the same minute, a forecast integer
+0–40, `Feed updated N min ago` with N < 15, and the label
+`baseline v0 (persistence)`.
 
 ## Anchor Results (append-only log)
 
@@ -68,6 +70,28 @@ Verdict: PASS
 Note for later phases: the official map splits mechanical vs electric
 bikes; the JCDecaux v1 API reports only the combined total. The model
 forecasts the combined total.
+
+### 2026-07-09 — Phase 2 anchor
+
+User observation on a phone over mobile data (Wi-Fi off), page
+https://dublin-bikes-forecast.onrender.com, ~20:31 Dublin time:
+
+```
+Bikes available now: 20
+Forecast in 60 min: 20
+Free stands: 20
+Feed updated 4 min ago (20:27 Dublin time)
+Model: baseline v0 (persistence) · Station capacity: 40
+Load time: "almost instantly"
+```
+
+Official dublinbikes map, same minutes: MOUNT STREET LOWER =
+mechanical + electric = **20 bikes**. Difference vs page: 0 (tolerance
+±2). All five expected observations met: (a) load ≪ 120 s on mobile
+data; (b) count match exact; (c) forecast integer within [0, 40];
+(d) feed age 4 min < 15; (e) baseline label visible.
+
+Verdict: PASS
 
 ## Locked decisions & assumptions
 
@@ -154,9 +178,31 @@ what changed.
 4. NO.
 5. NO — next-riskiest is A3 (HF Spaces free tier), which Phase 2 targets.
 
+### 2026-07-09 — after Phase 2
+
+1. YES (already handled mid-phase) — A3 (HF Spaces free Docker tier)
+   was invalidated during this phase; D3 reopened per its condition,
+   host changed to Render, A3b added and now CONFIRMED by this anchor.
+   All affected files were amended in the same session (see Locked
+   decisions & assumptions note).
+2. NO — Phase 3's anchor (historical-data audit thresholds) is
+   host-independent and unchanged.
+3. NO — nothing Phase 3 assumes landed differently; deploy flow is now
+   `git push origin main` → Render auto-deploy, already reflected in
+   `docs/phase-5.md`.
+4. NO.
+5. NO — next-riskiest standing assumption is A2 (historical data
+   exists at usable granularity), which is exactly Phase 3's target.
+
 ## Session log (brief)
 
 - 2026-07-08 — Planning session: docs bundle created; no code written.
 - 2026-07-08/09 — Build session: Phase 1 executed and closed. Probe
   script written, JCDecaux feed verified live, anchor PASS (18 vs 18
   bikes, same minute). Station locked: MOUNT STREET LOWER.
+- 2026-07-09 — Build session (continued): Phase 2 executed and closed.
+  FastAPI app + Docker + tests built; HF Spaces found paid mid-phase →
+  re-planned to Render (D3/A3/A3b); UTC-timestamp display bug found on
+  the deployed page and fixed (Dublin-time + minutes-ago). Anchor PASS
+  (20 vs 20 bikes on mobile data). Live URL:
+  https://dublin-bikes-forecast.onrender.com

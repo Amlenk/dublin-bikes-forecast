@@ -1,7 +1,7 @@
 # Phase 2 — Deployed walking skeleton
 
-**Status:** PROVISIONAL — revise after the previous phase closes (see
-re-planning checklist in docs/handover.md)
+**Status:** CLOSED — anchor PASS 2026-07-09 (see docs/handover.md →
+Anchor Results)
 
 **Prerequisite:** Phase 1 closed with its anchor result pasted in
 `docs/handover.md` (which names the chosen station and the winning live
@@ -157,7 +157,16 @@ The phase is done only when ALL of these hold:
 
 ## Iteration & deferral notes
 
-— (empty at planning time)
+- 2026-07-09: Mid-phase re-plan — HF's New Space UI offers Docker
+  Spaces only on paid plans (A3 triggered, D3 reopened). Host changed
+  to a Render free web service; this file was amended accordingly
+  before the deploy.
+- 2026-07-09: Deployed-page bug found during smoke check: the feed
+  timestamp rendered in the container's UTC clock and read as stale to
+  viewers elsewhere. Fixed by converting to Europe/Dublin (`zoneinfo` +
+  `tzdata` dependency) and showing "N min ago". Regression test added.
+- 2026-07-09: Live counts moved 18 → 20 during verification — a useful
+  reminder that anchor comparisons must be same-minute.
 
 ## Close-out (mandatory — the phase is not done until every step is done)
 

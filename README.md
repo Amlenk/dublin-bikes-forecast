@@ -4,7 +4,8 @@ Live availability + one-hour-ahead forecast for a Dublin Bikes station,
 served as a public Dockerized FastAPI app on Render (auto-deployed from
 this repo on every push to `main`).
 
-**Live demo:** _URL added after first deploy._
+**Live demo:** https://dublin-bikes-forecast.onrender.com
+(free tier — first load may take ~30–60 s if the service is waking)
 
 Status: walking skeleton (live feed + persistence placeholder forecast).
 The trained model, evaluation numbers, and data pipeline land in later
