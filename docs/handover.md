@@ -76,7 +76,14 @@ All locked decisions and standing assumptions live in
 session (its reopen/revisit condition fired), note the change here with a
 pointer:
 
-— (no changes yet)
+- 2026-07-09 — **D3 reopened and changed: host is now Render, not
+  Hugging Face Spaces.** HF's New Space UI offers Docker/Gradio Spaces
+  only on paid plans (user observation, corroborated by
+  huggingface.co/pricing). A3 TRIGGERED; A3b (Render free tier, no
+  card) added. `docs/phase-2.md`, `docs/phase-5.md`,
+  `docs/00-essential-path.md`, `Dockerfile` (PORT env var), and
+  `README.md` amended accordingly. The unused `space` git remote was
+  removed; the HF write token is no longer needed (user may revoke it).
 
 ## Parking Lot (deferred items & future ideas)
 

@@ -1,17 +1,8 @@
----
-title: Dublin Bikes Forecast
-emoji: 🚲
-colorFrom: blue
-colorTo: green
-sdk: docker
-app_port: 7860
-pinned: false
----
-
 # Dublin Bikes Forecast
 
 Live availability + one-hour-ahead forecast for a Dublin Bikes station,
-served as a public FastAPI app.
+served as a public Dockerized FastAPI app on Render (auto-deployed from
+this repo on every push to `main`).
 
 **Live demo:** _URL added after first deploy._
 

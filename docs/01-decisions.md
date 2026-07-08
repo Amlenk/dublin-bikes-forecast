@@ -34,17 +34,25 @@
 - **Reopen when:** Phase 4's model fails to beat the persistence baseline
   after two documented feature iterations.
 
-### D3 — Serving stack and host: FastAPI in Docker on Hugging Face Spaces
+### D3 — Serving stack and host: FastAPI in Docker on Render (free tier)
+- **REOPENED 2026-07-09:** the reopen condition fired — Hugging Face's
+  New Space UI now offers only Static Spaces free; Docker/Gradio Space
+  creation is a paid-plan benefit (observed by the user in the UI and
+  corroborated by huggingface.co/pricing listing "Create Gradio & Docker
+  Spaces" under paid team plans). Host changed to Render.
 - **Decision:** FastAPI + Uvicorn (latest stable), packaged with a
-  Dockerfile, deployed to a Hugging Face Space (Docker SDK, free CPU
-  tier). The Space builds the image remotely — no local Docker required.
-- **Alternatives rejected:** Render/Fly/Railway free tiers (card
-  requirements and free-tier churn); Streamlit Cloud (weak fit for an
-  API + ML-engineer positioning).
-- **Rationale (one line):** Genuinely free, no credit card, Docker-native,
-  stable public URL, recognized by ML recruiters.
+  Dockerfile, deployed as a Render **free web service** connected to the
+  GitHub repo (Render builds the Dockerfile remotely and auto-deploys on
+  every push to `main`). No local Docker required. Free service sleeps
+  after 15 min idle; 30–60 s cold start is accepted.
+- **Alternatives rejected:** Hugging Face Spaces (Docker now paid —
+  see above); Fly/Railway (card requirements); Streamlit Cloud (weak fit
+  for an API + ML-engineer positioning).
+- **Rationale (one line):** Free with no card (verified 2026-07-09),
+  Docker-native, auto-deploy from GitHub, stable public URL.
 - **Reopen when:** Phase 2's deploy fails on the free tier, requires
-  payment, or first-load cold start exceeds 120 s measured on a phone.
+  payment/card, or first-load cold start exceeds 120 s measured on a
+  phone.
 
 ### D4 — One station end-to-end before any multi-station work
 - **Decision:** Everything through Phase 6 targets exactly one station,
@@ -115,6 +123,18 @@
   satisfying D5.
 - **Revisit trigger:** Phase 2's deploy requires payment, fails to build,
   or the public URL is unreachable from a phone.
+- **Status:** TRIGGERED (2026-07-09 — Docker Space creation is now a
+  paid-plan feature per the New Space UI and huggingface.co/pricing).
+  Superseded by A3b below; D3 reopened and changed to Render.
+
+### A3b — Render free web service suffices, no card
+- **Assumed:** A free Render account (GitHub sign-in, no card) can run
+  this Dockerized FastAPI app as a free web service with a public URL;
+  free services sleep after 15 min idle and cold-start in 30–60 s.
+- **Default source:** Render free-tier documentation and third-party
+  guides, checked 2026-07-09.
+- **Revisit trigger:** Phase 2's deploy requires a card, the build
+  fails on the free instance, or measured cold start exceeds 120 s.
 - **Status:** STANDING
 
 ### A4 — Station identity joins across live feed and historical data

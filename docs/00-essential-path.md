@@ -25,8 +25,10 @@ predicted count one hour ahead, with a data timestamp under 15 minutes old.
 4. A FastAPI service fetches the live snapshot, builds features, runs the
    model, and renders one HTML page: station name, live actual, +60 min
    forecast, data timestamp.
-5. The service runs Dockerized on a free public host (EXTERNAL — Hugging
-   Face Spaces free CPU tier), reachable at a public URL from any phone.
+5. The service runs Dockerized on a free public host (EXTERNAL — Render
+   free web service; originally HF Spaces, changed 2026-07-09 when HF
+   made Docker Spaces paid — see `docs/01-decisions.md` D3), reachable
+   at a public URL from any phone.
 
 ## Spine vs. flesh
 
@@ -34,8 +36,8 @@ predicted count one hour ahead, with a data timestamp under 15 minutes old.
 |---|---|---|
 | Live feed fetch | SPINE | No live feed → no current count on the page → CVT fails. |
 | Historical dataset + trained model | SPINE | No trained model → no credible forecast; "job-worthy ML" is the product's value (a permanent naive placeholder fails the one-liner). |
-| Public deployment (HF Space) | SPINE | CVT says "recruiter opens the public URL on their phone" — localhost completes nothing. |
-| Dockerfile / packaging | SPINE | HF Spaces Docker SDK requires a Dockerfile to serve FastAPI; without it the app cannot be hosted there (platform-demanded packaging). |
+| Public deployment (Render free web service) | SPINE | CVT says "recruiter opens the public URL on their phone" — localhost completes nothing. |
+| Dockerfile / packaging | SPINE | The chosen host deploys this repo by building its Dockerfile (platform-demanded packaging); without it the app cannot be hosted there. |
 | Scheduled ingestion → Postgres | FLESH (demanded breadth) | Forecast from the live snapshot + calendar features completes the CVT without stored history; kept as Phase 6 because the user's goal (ML-engineer resume evidence) explicitly demands an unattended data pipeline. |
 | Automated retraining | FLESH | Model trained once completes the CVT → Parking Lot. |
 | Multi-station support / map UI | FLESH | CVT names ONE station → Parking Lot. |

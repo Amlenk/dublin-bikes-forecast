@@ -21,9 +21,11 @@ endpoint).
   Goal); the trained model replaces it in Phases 4–5.
 - **Stack & versions:** Python 3.12 (≥3.11), FastAPI + Uvicorn (latest
   stable), `requests`, `jinja2` (for the single HTML page). Packaged with
-  a Dockerfile (base image `python:3.12-slim`); Hugging Face Spaces
-  builds the image remotely — no local Docker needed. Host: Hugging Face
-  Space, Docker SDK, free CPU tier (see `docs/01-decisions.md` D3).
+  a Dockerfile (base image `python:3.12-slim`); Render builds the image
+  remotely — no local Docker needed. Host: Render free web service
+  connected to the GitHub repo, auto-deploys on push to `main` (see
+  `docs/01-decisions.md` D3, reopened and changed from HF Spaces
+  2026-07-09).
 - **Repo layout (relevant paths):** Repo root =
   `dublin-bikes-forecast/`. This phase creates: `app/main.py` (FastAPI
   app + page route), `app/live.py` (live-feed fetch), `app/forecast.py`
@@ -36,24 +38,22 @@ endpoint).
   - `pip install -r requirements.txt`
   - Local run: `uvicorn app.main:app --reload` → http://127.0.0.1:8000
   - Tests: `pytest`
-  - Deploy: create the Space (steps in Scope IN), then
-    `git push space main` (the Space is a git remote).
+  - Deploy: create the Render service once (steps in Scope IN); after
+    that, `git push origin main` auto-deploys.
 - **Prerequisites (accounts, credentials, sample data, installs):**
   - The live-feed API key from Phase 1, in local `.env` as
-    `JCDECAUX_API_KEY` — and added as a **Space secret** with the same
-    name (Space → Settings → Variables and secrets). Never in git.
-  - Free Hugging Face account (email signup, no card) at
-    https://huggingface.co, plus a write access token (Settings →
-    Access Tokens) to push.
+    `JCDECAUX_API_KEY` — and added as a Render **environment variable**
+    with the same name (service → Environment tab). Never in git.
+  - Free Render account (sign in with GitHub, no card) at
+    https://render.com.
   - Public GitHub repo `Amlenk/dublin-bikes-forecast` created and this
-    folder pushed to it (GitHub is the primary remote; the Space is a
-    second remote).
+    folder pushed to it (Render deploys from this repo).
   - The chosen station name and winning endpoint: read them from
     `docs/handover.md` (recorded at Phase 1 close).
 
 ## Goal
 
-Deploy a Dockerized FastAPI page on a free Hugging Face Space that shows
+Deploy a Dockerized FastAPI page on a free Render web service that shows
 the chosen station's live availability alongside a labeled placeholder
 one-hour forecast.
 
@@ -70,12 +70,15 @@ one-hour forecast.
   current available bikes, forecast for +60 min, feed timestamp, and the
   model label. A `/health` route returning `{"status": "ok"}` (for the
   Space's own checks; NOT the anchor).
-- `Dockerfile` per HF Spaces Docker SDK conventions (app must listen on
-  port 7860).
-- Creating the Space: huggingface.co → New Space → name
-  `dublin-bikes-forecast`, SDK = Docker, hardware = CPU basic (free),
-  visibility = Public. Add the Space as a git remote and push.
-- Setting the API-key secret on the Space before the anchor run.
+- `Dockerfile` whose CMD binds to Render's `PORT` env var when present
+  (shell-form CMD with `${PORT:-7860}` fallback for local runs).
+- Creating the Render service: render.com → New → Web Service → connect
+  the GitHub repo `Amlenk/dublin-bikes-forecast` → Language/Runtime:
+  Docker (auto-detected from the Dockerfile) → Instance type: **Free**
+  → region: Frankfurt (closest to Dublin) → Create. Render then builds
+  and deploys; subsequent pushes to `main` auto-deploy.
+- Setting the `JCDECAUX_API_KEY` environment variable on the service
+  (Environment tab) before the anchor run.
 
 **OUT (do not build these in this phase, even if tempting):**
 - No trained model, no historical data, no pandas/scikit-learn (Phases
@@ -94,9 +97,9 @@ one-hour forecast.
   values are produced by this phase's code.
 - **Executable check:**
   1. On a phone NOT on the dev machine's network (use mobile data), open
-     `https://<hf-username>-dublin-bikes-forecast.hf.space` (exact URL:
-     Space page → "Embed this Space" shows the direct URL; record it in
-     `docs/handover.md`).
+     the service's public URL — `https://<service-name>.onrender.com`,
+     shown at the top of the Render service page; record it in
+     `docs/handover.md`.
   2. Read the displayed station name, current bikes, forecast, and
      timestamp; note the wall-clock time.
   3. Within the same minute, open the official dublinbikes live map
@@ -137,17 +140,16 @@ The phase is done only when ALL of these hold:
 
 ## Pre-mortem (likely failure modes)
 
-1. If the Space build fails → probably the Dockerfile doesn't serve on
-   port 7860 or `requirements.txt` is missing a package → check the
-   Space's Build logs tab first.
+1. If the Render build/deploy fails → probably the app isn't binding to
+   Render's `PORT` env var or `requirements.txt` is missing a package →
+   check the service's Logs tab first (build log, then runtime log).
 2. If the page loads but shows "feed unavailable" → probably the
-   `JCDECAUX_API_KEY` secret isn't set on the Space (local `.env` does
-   not travel) → check Space Settings → Variables and secrets, then the
-   Runtime logs.
-3. If the page never loads on the phone → probably the Space is still
-   building or sleeping → check the Space page shows status "Running";
-   retry once after it does. If it runs but the URL 404s, re-copy the
-   direct URL from "Embed this Space".
+   `JCDECAUX_API_KEY` environment variable isn't set on the service
+   (local `.env` does not travel) → check the Environment tab, then the
+   runtime logs.
+3. If the page never loads on the phone → probably the free service is
+   waking from sleep (30–60 s) or still deploying → wait 90 s and
+   reload once; check the service shows "Live" in the Render dashboard.
 4. If the count mismatches the map by > 2 → probably comparing different
    stations (name collisions) or a stale cache in `app/live.py` → log
    the raw feed timestamp and station id; do not cache responses in this

@@ -20,9 +20,11 @@ recorded baseline).
   page serves the TRAINED model (replacing the Phase-2 persistence
   placeholder), completing the CVT in its final form.
 - **Stack & versions:** Python 3.12 (≥3.11), FastAPI + Uvicorn (latest
-  stable), scikit-learn ≥1.4, pandas ≥2.2, joblib. Docker on Hugging
-  Face Spaces (Docker SDK, free CPU; Space builds remotely). The Space
-  and its secret (`JCDECAUX_API_KEY`) already exist from Phase 2.
+  stable), scikit-learn ≥1.4, pandas ≥2.2, joblib. Docker on Render
+  (free web service; Render builds remotely and auto-deploys on push to
+  `main`). The service and its `JCDECAUX_API_KEY` environment variable
+  already exist from Phase 2 (host changed from HF Spaces to Render
+  2026-07-09 — see `docs/01-decisions.md` D3).
 - **Repo layout (relevant paths):** Repo root =
   `dublin-bikes-forecast/`. This phase modifies `app/forecast.py` (load
   `model/artifacts/model_v1.joblib`, build serving features, predict)
@@ -35,10 +37,10 @@ recorded baseline).
   - `.venv\Scripts\activate` then `pip install -r requirements.txt`
   - Local run: `uvicorn app.main:app --reload`
   - Tests: `pytest`
-  - Deploy: `git push space main` (Space remote from Phase 2), watch the
-    Space build logs.
+  - Deploy: `git push origin main` (Render auto-deploys), watch the
+    service's Logs tab in the Render dashboard.
 - **Prerequisites (accounts, credentials, sample data, installs):**
-  - HF account + Space from Phase 2; live public URL recorded in
+  - Render account + service from Phase 2; live public URL recorded in
     `docs/handover.md`.
   - The trained artifact `model/artifacts/model_v1.joblib` from Phase 4.
   - **Serving-features note:** the model's t−1h/t−24h/t−1wk lag inputs
@@ -72,7 +74,7 @@ trained model, verified by input/output parity with the offline artifact.
   fetch so parity is exact.
 - Page label changes from `baseline v0 (persistence)` to
   `model v1 (trained <train date>)`.
-- Redeploy to the existing Space.
+- Redeploy to the existing Render service (push to `main`).
 
 **OUT (do not build these in this phase, even if tempting):**
 - No retraining, no model changes (any MAE improvement idea → Parking
@@ -134,7 +136,7 @@ The phase is done only when ALL of these hold:
 1. If the parity value differs → probably feature order/schema drift
    between `model/features.py` and the serving builder → print both
    feature vectors side by side first; do NOT retrain to make it match.
-2. If the Space build fails after adding scikit-learn → probably image
+2. If the Render build fails after adding scikit-learn → probably image
    bloat or a missing system lib in `python:3.12-slim` → check the build
    log; pin package versions to those in the local venv
    (`pip freeze`).
@@ -142,9 +144,10 @@ The phase is done only when ALL of these hold:
    probably the climatology lag lookup is misaligned (hour-of-week
    indexing) → log the served feature vector and compare with a
    hand-computed one for the current time.
-4. If the artifact fails to load on the Space → probably a scikit-learn
-   version mismatch between training and serving → pin the exact same
-   version in `requirements.txt` as recorded in `model/EVAL.md`.
+4. If the artifact fails to load on the deployed service → probably a
+   scikit-learn version mismatch between training and serving → pin the
+   exact same version in `requirements.txt` as recorded in
+   `model/EVAL.md`.
 
 ## Iteration & deferral notes
 
