@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 
 from fastapi.testclient import TestClient
 
@@ -12,7 +12,7 @@ FAKE_SNAP = Snapshot(
     bikes=18,
     stands=22,
     capacity=40,
-    updated=datetime(2026, 7, 9, 0, 0, 0),
+    updated=datetime.now(timezone.utc) - timedelta(minutes=3),
 )
 
 
@@ -29,6 +29,7 @@ def test_index_renders_station(monkeypatch):
     assert "MOUNT STREET LOWER" in resp.text
     assert "baseline v0 (persistence)" in resp.text
     assert "18" in resp.text
+    assert "min ago" in resp.text
 
 
 def test_index_feed_failure_renders_error_state(monkeypatch):

@@ -18,6 +18,7 @@ def test_parse_station_extracts_fields():
     assert snap.stands == 22
     assert snap.capacity == 40
     assert snap.updated.year == 2026
+    assert snap.updated.tzinfo is not None  # Dublin-aware, not naive
 
 
 def test_parse_station_missing_station_raises():

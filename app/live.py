@@ -7,8 +7,11 @@ import os
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 import requests
+
+DUBLIN_TZ = ZoneInfo("Europe/Dublin")
 
 API_URL = "https://api.jcdecaux.com/vls/v1/stations"
 CONTRACT = "dublin"
@@ -49,7 +52,7 @@ def parse_station(payload: list, station_name: str = STATION_NAME) -> Snapshot:
                 bikes=int(s["available_bikes"]),
                 stands=int(s["available_bike_stands"]),
                 capacity=int(s["bike_stands"]),
-                updated=datetime.fromtimestamp(s["last_update"] / 1000),
+                updated=datetime.fromtimestamp(s["last_update"] / 1000, tz=DUBLIN_TZ),
             )
     raise LiveFeedError(f"station {station_name!r} not in feed")
 

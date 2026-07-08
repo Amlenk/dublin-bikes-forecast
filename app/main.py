@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from pathlib import Path
 
 from fastapi import FastAPI, Request
@@ -22,9 +23,13 @@ def health():
 def index(request: Request):
     try:
         snap = get_snapshot()
+        age_min = int(
+            (datetime.now(timezone.utc) - snap.updated).total_seconds() // 60
+        )
         ctx = {
             "error": None,
             "snapshot": snap,
+            "age_minutes": age_min,
             "forecast": forecast_bikes(snap.bikes),
             "model_label": MODEL_LABEL,
             "horizon": HORIZON_MINUTES,

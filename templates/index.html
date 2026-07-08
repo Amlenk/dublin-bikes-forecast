@@ -40,7 +40,8 @@
         <span class="value">{{ snapshot.stands }}</span>
       </div>
       <p class="meta">
-        Feed updated: {{ snapshot.updated.strftime("%Y-%m-%d %H:%M:%S") }}<br>
+        Feed updated {{ age_minutes }} min ago
+        ({{ snapshot.updated.strftime("%H:%M") }} Dublin time)<br>
         Model: {{ model_label }} &middot; Station capacity: {{ snapshot.capacity }}
       </p>
     {% endif %}
