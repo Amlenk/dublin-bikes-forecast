@@ -1,7 +1,8 @@
 # Phase 5 — Serve the trained model
 
-**Status:** PROVISIONAL — revise after the previous phase closes (see
-re-planning checklist in docs/handover.md)
+**Status:** CLOSED — anchor PASS 2026-07-09 (deployed /predict returned
+17.9037, exact match with the pre-committed golden value; see
+docs/handover.md → Anchor Results)
 
 **Prerequisite:** Phase 4 closed with its anchor result pasted in
 `docs/handover.md` (`model/artifacts/model_v1.joblib` exists and beat the
@@ -162,6 +163,16 @@ The phase is done only when ALL of these hold:
   lag_2h 16, lag_24h 15, lag_1w 14, roll_3h 16.5, hour 9, dow 2,
   is_weekend 0). Offline prediction from `model_v1.joblib` via
   `scripts/golden_offline.py`: **17.9037**.
+- 2026-07-09 (close): serving roll_3h defined as the mean of the
+  climatology at t, t−1h, t−2h (documented in `app/forecast.py`).
+  Calendar features use the feed timestamp in Dublin time — note the
+  historical files' timestamps were assumed Dublin-local; if they turn
+  out to be UTC there is a 1-hour summer-time skew in served calendar
+  features. Acceptable within the v1 climatology approximation; revisit
+  when serving switches to true Postgres lags (Parking Lot).
+- 2026-07-09 (close): first deployed forecast in production predicted
+  morning inflow (20 now → 23 in an hour at 08:23; the next fetch
+  showed 22) — visibly non-persistence behavior.
 
 ## Close-out (mandatory — the phase is not done until every step is done)
 

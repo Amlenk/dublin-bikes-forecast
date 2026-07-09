@@ -45,24 +45,31 @@ pre-committed persistence baseline on the held-out fortnight
 2016 identical eval rows. Artifacts in `model/artifacts/`
 (`model_v1.joblib` — dict with model/feature_columns/metadata — and
 `climatology.csv` hour-of-week means for Phase 5 serving lags).
-Full record: `model/EVAL.md`. 13 unit tests passing (`pytest`).
-Not yet: model serving on the live page (it still shows baseline v0),
-database, scheduled ingestion.
+Full record: `model/EVAL.md`.
+
+Phase 5 CLOSED (anchor PASS 2026-07-09): **the walking skeleton is
+complete in its final form** — the live page serves model v1 (lags via
+train-time climatology; `POST /predict` parity endpoint returned the
+pre-committed golden value 17.9037 exactly). sklearn pinned to 1.9.0
+in requirements.txt; Docker image ships `model/artifacts/`. 17 unit
+tests passing (`pytest`). Not yet: database + scheduled ingestion
+(Phase 6), then Parking Lot (README/resume bullets first).
 
 ## The ONE next task
 
-Execute `docs/phase-5.md` — serve the Phase-4 model from the deployed
-Render service. Its anchor: a pre-committed golden input's served
-prediction (`POST /predict`) equals the offline artifact's prediction
-to 4 decimals, and the live page shows the `model v1` label.
+Execute `docs/phase-6.md` — unattended scheduled ingestion: GitHub
+Actions cron (30 min) appending live snapshots to a Neon free-tier
+Postgres. Its anchor: after a ≥12-hour unattended window, GitHub's
+Actions tab shows ≥18 scheduled runs (≥90% success) and Neon's SQL
+console shows ≥15 distinct-timestamp rows spanning ≥10 hours.
 
 ## How to verify the previous phase actually works
 
-Run (from repo root): `.venv\Scripts\python.exe model\train.py`
-Expected final lines: `baseline_mae=2.0843 (step-1 definition,
-rows=2016)` and `model_mae=1.6150` (exact reproduction — the model and
-split are seeded/deterministic). Requires `data/raw/` (re-download via
-`data/DATA_AUDIT.md` if missing).
+Run (PowerShell, any machine):
+`Invoke-RestMethod -Method Post -Uri https://dublin-bikes-forecast.onrender.com/predict -ContentType "application/json" -Body (Get-Content tests\fixtures\golden_input.json -Raw)`
+Expected: `prediction = 17.9037`. Also open
+https://dublin-bikes-forecast.onrender.com — label reads
+`model v1 (trained 2026-07-09)`.
 
 ## Anchor Results (append-only log)
 
@@ -165,6 +172,26 @@ Input: `tests/fixtures/golden_input.json` (bikes_now 18, lag_1h 17,
 lag_2h 16, lag_24h 15, lag_1w 14, roll_3h 16.5, hour 9, dow 2,
 is_weekend 0). The Phase 5 anchor requires the deployed
 `POST /predict` to return 17.9037 for this input, to 4 decimals.
+
+### 2026-07-09 — Phase 5 anchor
+
+Deployed parity check (golden pair committed 1d0fdbc, before serving
+code):
+
+```
+POST https://dublin-bikes-forecast.onrender.com/predict  <- golden_input.json
+deployed prediction: 17.9037
+golden (pre-committed): 17.9037
+PARITY: EXACT MATCH
+```
+
+Live page at the same time (remote fetch): `MOUNT STREET LOWER`,
+bikes 22, forecast 25 (within [0, 40]), `Feed updated 0 min ago`,
+label `model v1 (trained 2026-07-09)`. All three expected
+observations met: (a) parity to 4 decimals; (b) model-v1 label +
+in-range forecast; (c) feed age < 15 min.
+
+Verdict: PASS
 
 ## Locked decisions & assumptions
 
@@ -296,6 +323,19 @@ what changed.
 5. NO — remaining open assumptions (A6 Neon, GHA cron) belong to
    Phase 6; Phase 5 (serving parity) is the next spine gap.
 
+### 2026-07-09 — after Phase 5
+
+1. NO — nothing invalidated. D4's reopen condition occurred (skeleton
+   complete); noted in `docs/01-decisions.md`, decision stands pending
+   user choice.
+2. NO — Phase 6's anchor (GitHub Actions runs + Neon SQL counts) is
+   unaffected by anything Phase 5 changed.
+3. NO — Phase 6 touches `scripts/` and `.github/workflows/` only; the
+   app layout it assumes is unchanged.
+4. NO.
+5. NO — A6 (Neon, no card) and A4/D7 (GHA cron reliability) are the
+   open assumptions and Phase 6 targets exactly them.
+
 ## Session log (brief)
 
 - 2026-07-08 — Planning session: docs bundle created; no code written.
@@ -317,3 +357,7 @@ what changed.
   Baseline (2.0843) committed before model code; features + trainer +
   4 tests written; first model beat baseline: MAE 1.6150 (−22.5%).
   Artifacts + climatology exported for Phase 5.
+- 2026-07-09 — Build session (continued): Phase 5 executed and closed.
+  Golden pair (17.9037) committed before serving code; model v1 now
+  live with climatology serving lags + /predict endpoint; deployed
+  parity EXACT. Skeleton complete in final form.

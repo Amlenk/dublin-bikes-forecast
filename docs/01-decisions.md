@@ -62,6 +62,9 @@
   every phase's surface for zero risk retired.
 - **Reopen when:** Phase 5 has closed (skeleton complete) — multi-station
   is then a Parking Lot candidate.
+- **Note 2026-07-09:** the reopen condition has occurred (Phase 5
+  closed). The decision stands until the user chooses to promote
+  multi-station from the Parking Lot; nothing changes automatically.
 
 ### D5 — Free tier only, no credit card anywhere
 - **Decision:** Every external service used must be free and must not
