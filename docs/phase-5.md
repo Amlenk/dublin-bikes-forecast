@@ -157,7 +157,11 @@ The phase is done only when ALL of these hold:
 
 ## Iteration & deferral notes
 
-— (empty at planning time)
+- 2026-07-09 (Step 1, before serving code): golden pair recorded.
+  Input = `tests/fixtures/golden_input.json` (bikes_now 18, lag_1h 17,
+  lag_2h 16, lag_24h 15, lag_1w 14, roll_3h 16.5, hour 9, dow 2,
+  is_weekend 0). Offline prediction from `model_v1.joblib` via
+  `scripts/golden_offline.py`: **17.9037**.
 
 ## Close-out (mandatory — the phase is not done until every step is done)
 

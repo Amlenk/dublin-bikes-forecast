@@ -154,6 +154,18 @@ both numbers and the window.
 
 Verdict: PASS
 
+### 2026-07-09 — Phase 5 Step 1 (golden pair, recorded before serving code)
+
+```
+$ python scripts/golden_offline.py
+golden_prediction=17.9037
+```
+
+Input: `tests/fixtures/golden_input.json` (bikes_now 18, lag_1h 17,
+lag_2h 16, lag_24h 15, lag_1w 14, roll_3h 16.5, hour 9, dow 2,
+is_weekend 0). The Phase 5 anchor requires the deployed
+`POST /predict` to return 17.9037 for this input, to 4 decimals.
+
 ## Locked decisions & assumptions
 
 All locked decisions and standing assumptions live in
