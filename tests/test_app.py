@@ -27,9 +27,21 @@ def test_index_renders_station(monkeypatch):
     resp = client.get("/")
     assert resp.status_code == 200
     assert "MOUNT STREET LOWER" in resp.text
-    assert "baseline v0 (persistence)" in resp.text
+    assert "model v1 (trained" in resp.text
     assert "18" in resp.text
     assert "min ago" in resp.text
+
+
+def test_predict_endpoint_matches_golden_pair():
+    import json
+    from pathlib import Path
+
+    golden = json.loads(
+        (Path(__file__).parent / "fixtures" / "golden_input.json").read_text()
+    )
+    resp = client.post("/predict", json=golden)
+    assert resp.status_code == 200
+    assert resp.json() == {"prediction": 17.9037}
 
 
 def test_index_feed_failure_renders_error_state(monkeypatch):

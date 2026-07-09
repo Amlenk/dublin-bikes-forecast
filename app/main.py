@@ -4,8 +4,14 @@ from pathlib import Path
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
+from pydantic import BaseModel
 
-from app.forecast import HORIZON_MINUTES, MODEL_LABEL, forecast_bikes
+from app.forecast import (
+    HORIZON_MINUTES,
+    MODEL_LABEL,
+    forecast_bikes,
+    predict_from_features,
+)
 from app.live import LiveFeedError, get_snapshot
 
 app = FastAPI(title="Dublin Bikes Forecast")
@@ -14,9 +20,26 @@ templates = Jinja2Templates(
 )
 
 
+class Features(BaseModel):
+    bikes_now: float
+    lag_1h: float
+    lag_2h: float
+    lag_24h: float
+    lag_1w: float
+    roll_3h: float
+    hour: float
+    dow: float
+    is_weekend: float
+
+
 @app.get("/health")
 def health():
     return {"status": "ok"}
+
+
+@app.post("/predict")
+def predict(features: Features):
+    return {"prediction": round(predict_from_features(features.model_dump()), 4)}
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -30,7 +53,7 @@ def index(request: Request):
             "error": None,
             "snapshot": snap,
             "age_minutes": age_min,
-            "forecast": forecast_bikes(snap.bikes),
+            "forecast": forecast_bikes(snap.bikes, snap.updated, snap.capacity),
             "model_label": MODEL_LABEL,
             "horizon": HORIZON_MINUTES,
         }
