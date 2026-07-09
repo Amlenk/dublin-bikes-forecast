@@ -57,11 +57,16 @@ tests passing (`pytest`). Not yet: database + scheduled ingestion
 
 ## The ONE next task
 
-Execute `docs/phase-6.md` — unattended scheduled ingestion: GitHub
-Actions cron (30 min) appending live snapshots to a Neon free-tier
-Postgres. Its anchor: after a ≥12-hour unattended window, GitHub's
-Actions tab shows ≥18 scheduled runs (≥90% success) and Neon's SQL
-console shows ≥15 distinct-timestamp rows spanning ≥10 hours.
+Run the Phase 6 **anchor** (docs/phase-6.md — the pipeline itself is
+built, deployed, and manually verified). The unattended window began
+2026-07-09 ~09:05 UTC after a successful manual `workflow_dispatch`
+run (114 rows written by the GitHub runner; snapshots table at 228
+rows). After ≥ 12 unattended hours: (1) count scheduled `ingest` runs
+and statuses in the Actions tab — expect ≥ 18 runs, ≥ 90% success,
+Event column `schedule`; (2) in Neon SQL (or via local psycopg with
+`.env`'s DATABASE_URL) run the query in docs/phase-6.md — expect
+count ≥ 15, distinct ts ≥ 15, span ≥ 10 h for station_id of MOUNT
+STREET LOWER. Then close the phase per its close-out.
 
 ## How to verify the previous phase actually works
 
@@ -361,3 +366,8 @@ what changed.
   Golden pair (17.9037) committed before serving code; model v1 now
   live with climatology serving lags + /predict endpoint; deployed
   parity EXACT. Skeleton complete in final form.
+- 2026-07-09 — Build session (continued): Phase 6 pipeline built and
+  deployed. Schema applied to Neon; local ingest inserted 114 rows;
+  manual workflow_dispatch run from GitHub's runner inserted 114 more
+  (228 total) — secrets verified in CI. Unattended 12-hour anchor
+  window started ~09:05 UTC; anchor to be run next session.
