@@ -29,3 +29,12 @@ persistence_baseline_mae=2.0843
 ## Training runs
 
 _(appended by `model/train.py`)_
+
+### Run 2026-07-09 — HistGradientBoostingRegressor (sklearn 1.9.0)
+
+```
+train rows: 10138  holdout rows: 2016
+persistence on model holdout rows: mae=2.0843
+baseline_mae=2.0843 (step-1 definition, rows=2016)
+model_mae=1.6150
+```

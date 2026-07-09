@@ -1,7 +1,7 @@
 # Phase 4 — Trained model beats the persistence baseline
 
-**Status:** PROVISIONAL — revise after the previous phase closes (see
-re-planning checklist in docs/handover.md)
+**Status:** CLOSED — anchor PASS 2026-07-09 (baseline 2.0843 reproduced
+exactly; model 1.6150; see docs/handover.md → Anchor Results)
 
 **Prerequisite:** Phase 3 closed with its anchor result pasted in
 `docs/handover.md` (the audited dataset exists in `data/raw/` and
@@ -149,7 +149,21 @@ The phase is done only when ALL of these hold:
 
 ## Iteration & deferral notes
 
-— (empty at planning time)
+- 2026-07-09: First model iteration beat the baseline (no feature
+  iterations needed): HistGradientBoostingRegressor defaults,
+  model_mae 1.6150 vs baseline 2.0843 (−22.5%). D2's reopen condition
+  never fired.
+- 2026-07-09: The feature-complete holdout row count (2016) equals the
+  Step-1 baseline row count — no >30-min gaps or missing lags inside
+  the holdout window, so the comparison needed no caveats.
+- 2026-07-09: `bikes_now` (value at t) was included as a feature
+  alongside the phase file's lag list — it is the persistence signal
+  itself and its timestamp (t) is strictly earlier than the target
+  (t+60), so the no-leakage rule holds.
+- 2026-07-09: Artifact is a joblib dict:
+  `{model, feature_columns, station, trained, sklearn_version}`
+  (sklearn 1.9.0). `model/artifacts/climatology.csv` has columns
+  `hour_of_week (0-167), mean_bikes`, computed from train rows only.
 
 ## Close-out (mandatory — the phase is not done until every step is done)
 

@@ -42,7 +42,13 @@ recorded baseline).
 - **Prerequisites (accounts, credentials, sample data, installs):**
   - Render account + service from Phase 2; live public URL recorded in
     `docs/handover.md`.
-  - The trained artifact `model/artifacts/model_v1.joblib` from Phase 4.
+  - The trained artifact `model/artifacts/model_v1.joblib` from Phase 4
+    — a joblib dict with keys `model`, `feature_columns` (9 features:
+    bikes_now, lag_1h, lag_2h, lag_24h, lag_1w, roll_3h, hour, dow,
+    is_weekend), `station`, `trained`, `sklearn_version` (1.9.0 — pin
+    this in requirements.txt). Climatology lookup:
+    `model/artifacts/climatology.csv`, columns `hour_of_week` (0–167 =
+    dayofweek*24+hour) and `mean_bikes`.
   - **Serving-features note:** the model's t−1h/t−24h/t−1wk lag inputs
     are not all observable from a single live snapshot. The serving
     feature builder must state its strategy in code comments and

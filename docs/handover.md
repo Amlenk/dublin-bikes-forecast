@@ -36,24 +36,33 @@ secured — three monthly GBFS-style CSVs (Mar–May 2026, 1.88M rows, 115
 stations) in `data/raw/` (gitignored, ~77 MB each; re-download URLs in
 `data/DATA_AUDIT.md`). MOUNT STREET LOWER: 16,874 rows, 91-day span,
 median cadence 10 min, σ=9.46 last week. Station names match the live
-feed exactly. 9 unit tests passing (`pytest`). Not yet: trained model,
+feed exactly.
+
+Phase 4 CLOSED (anchor PASS 2026-07-09): trained model
+(`HistGradientBoostingRegressor`, sklearn 1.9.0, 9 features) beats the
+pre-committed persistence baseline on the held-out fortnight
+2026-05-18..31: **model MAE 1.6150 vs baseline 2.0843 (−22.5%)**,
+2016 identical eval rows. Artifacts in `model/artifacts/`
+(`model_v1.joblib` — dict with model/feature_columns/metadata — and
+`climatology.csv` hour-of-week means for Phase 5 serving lags).
+Full record: `model/EVAL.md`. 13 unit tests passing (`pytest`).
+Not yet: model serving on the live page (it still shows baseline v0),
 database, scheduled ingestion.
 
 ## The ONE next task
 
-Execute `docs/phase-4.md` — train a model whose held-out 1-hour-ahead
-MAE for MOUNT STREET LOWER beats the persistence baseline recorded
-BEFORE any model code (Step 1 of the phase file). Its anchor:
-`python model/train.py` prints `baseline_mae` reproducing the Step-1
-number ±0.01 and `model_mae` strictly below it.
+Execute `docs/phase-5.md` — serve the Phase-4 model from the deployed
+Render service. Its anchor: a pre-committed golden input's served
+prediction (`POST /predict`) equals the offline artifact's prediction
+to 4 decimals, and the live page shows the `model v1` label.
 
 ## How to verify the previous phase actually works
 
-Run (from repo root):
-`.venv\Scripts\python.exe scripts\audit_historical.py data\raw\dublin-bikes_station_status_032026.csv data\raw\dublin-bikes_station_status_042026.csv data\raw\dublin-bikes_station_status_052026.csv`
-Expected: `total rows: 1880190`, station rows `16874`, span `91` days,
-median interval `10.0`, σ `9.46`. (If `data/raw/` is missing, re-download
-via the URLs in `data/DATA_AUDIT.md` first.)
+Run (from repo root): `.venv\Scripts\python.exe model\train.py`
+Expected final lines: `baseline_mae=2.0843 (step-1 definition,
+rows=2016)` and `model_mae=1.6150` (exact reproduction — the model and
+split are seeded/deterministic). Requires `data/raw/` (re-download via
+`data/DATA_AUDIT.md` if missing).
 
 ## Anchor Results (append-only log)
 
@@ -122,6 +131,26 @@ std of bikes over most recent full week (2026-05-24..2026-05-31): 9.46  (rows: 1
 All five thresholds from docs/phase-3.md met (details in
 data/DATA_AUDIT.md): 91 days ≥ 60; 10.0 min ≤ 60; values 0–40 within
 [0,45]; σ 9.46 > 2.0; exact station-name match with the live feed.
+
+Verdict: PASS
+
+### 2026-07-09 — Phase 4 anchor
+
+Step-1 baseline (committed 8bb21cd, before any model code):
+`persistence_baseline_mae=2.0843` (2016 rows). Then
+`python model/train.py` observed output:
+
+```
+train rows: 10138  holdout rows: 2016
+persistence on model holdout rows: mae=2.0843
+baseline_mae=2.0843 (step-1 definition, rows=2016)
+model_mae=1.6150
+```
+
+(a) baseline reproduced exactly (2.0843 vs 2.0843, tolerance ±0.01);
+(b) model_mae 1.6150 < 2.0843 strictly (−22.5%);
+(c) `model/artifacts/model_v1.joblib` exists; `model/EVAL.md` records
+both numbers and the window.
 
 Verdict: PASS
 
@@ -241,6 +270,20 @@ what changed.
 5. NO — Phase 4's target (model beats baseline) is the next open risk
    on the spine.
 
+### 2026-07-09 — after Phase 4
+
+1. NO — nothing invalidated. D2 (sklearn, no deep learning) held: the
+   first iteration beat the baseline; its reopen condition never fired.
+2. YES (minor) — Phase 5's anchor is unchanged, but its cold-start
+   context now records the artifact's actual structure (joblib dict,
+   9 feature columns, sklearn 1.9.0 to pin) and the climatology CSV
+   schema. `docs/phase-5.md` amended.
+3. NO — paths landed exactly as `docs/phase-5.md` assumes
+   (`model/artifacts/model_v1.joblib`, `climatology.csv`).
+4. NO.
+5. NO — remaining open assumptions (A6 Neon, GHA cron) belong to
+   Phase 6; Phase 5 (serving parity) is the next spine gap.
+
 ## Session log (brief)
 
 - 2026-07-08 — Planning session: docs bundle created; no code written.
@@ -258,3 +301,7 @@ what changed.
   downloaded Mar–May 2026 (~232 MB, gitignored), audit script + tests
   written, anchor PASS on all five thresholds. DATA_AUDIT.md records
   schema, URLs, and observed stats.
+- 2026-07-09 — Build session (continued): Phase 4 executed and closed.
+  Baseline (2.0843) committed before model code; features + trainer +
+  4 tests written; first model beat baseline: MAE 1.6150 (−22.5%).
+  Artifacts + climatology exported for Phase 5.
