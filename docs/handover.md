@@ -28,26 +28,32 @@ Frankfurt), auto-deployed from the public GitHub repo
 STREET LOWER's live availability (JCDecaux feed) + a persistence
 placeholder forecast labeled `baseline v0 (persistence)`, with feed age
 in minutes and Dublin wall-clock time. `JCDECAUX_API_KEY` is set as a
-Render environment variable. 7 unit tests passing (`pytest`). Host was
-changed HF Spaces → Render mid-Phase-2 (see Locked decisions &
-assumptions note below). Not yet: historical data, trained model,
+Render environment variable. Host was changed HF Spaces → Render
+mid-Phase-2 (see Locked decisions & assumptions note below).
+
+Phase 3 CLOSED (anchor PASS 2026-07-09): historical training data
+secured — three monthly GBFS-style CSVs (Mar–May 2026, 1.88M rows, 115
+stations) in `data/raw/` (gitignored, ~77 MB each; re-download URLs in
+`data/DATA_AUDIT.md`). MOUNT STREET LOWER: 16,874 rows, 91-day span,
+median cadence 10 min, σ=9.46 last week. Station names match the live
+feed exactly. 9 unit tests passing (`pytest`). Not yet: trained model,
 database, scheduled ingestion.
 
 ## The ONE next task
 
-Execute `docs/phase-3.md` — obtain and audit a historical dublinbikes
-dataset (data.gov.ie / Smart Dublin) covering MOUNT STREET LOWER at
-≤ 60-min granularity for ≥ 60 days. Its anchor: audit script output
-meets the thresholds fixed in the phase file.
+Execute `docs/phase-4.md` — train a model whose held-out 1-hour-ahead
+MAE for MOUNT STREET LOWER beats the persistence baseline recorded
+BEFORE any model code (Step 1 of the phase file). Its anchor:
+`python model/train.py` prints `baseline_mae` reproducing the Step-1
+number ±0.01 and `model_mae` strictly below it.
 
 ## How to verify the previous phase actually works
 
-Open https://dublin-bikes-forecast.onrender.com on a phone using mobile
-data (allow up to ~60 s if the free service is waking). Expected: page
-shows `MOUNT STREET LOWER`, a bikes-now integer 0–40 that matches the
-official dublinbikes map ±2 at the same minute, a forecast integer
-0–40, `Feed updated N min ago` with N < 15, and the label
-`baseline v0 (persistence)`.
+Run (from repo root):
+`.venv\Scripts\python.exe scripts\audit_historical.py data\raw\dublin-bikes_station_status_032026.csv data\raw\dublin-bikes_station_status_042026.csv data\raw\dublin-bikes_station_status_052026.csv`
+Expected: `total rows: 1880190`, station rows `16874`, span `91` days,
+median interval `10.0`, σ `9.46`. (If `data/raw/` is missing, re-download
+via the URLs in `data/DATA_AUDIT.md` first.)
 
 ## Anchor Results (append-only log)
 
@@ -90,6 +96,32 @@ mechanical + electric = **20 bikes**. Difference vs page: 0 (tolerance
 ±2). All five expected observations met: (a) load ≪ 120 s on mobile
 data; (b) count match exact; (c) forecast integer within [0, 40];
 (d) feed age 4 min < 15; (e) baseline label visible.
+
+Verdict: PASS
+
+### 2026-07-09 — Phase 3 anchor
+
+```
+files: 3
+total rows: 1880190
+columns: ['last_reported', 'station_id', 'num_bikes_available', 'name', 'capacity']
+distinct stations: 115
+
+station: MOUNT STREET LOWER
+rows: 16874
+min timestamp: 2026-03-01 00:10:00
+max timestamp: 2026-05-31 23:55:00
+span days: 91
+median interval minutes: 10.0
+max gap hours: 1.2
+bikes min: 0  max: 40
+capacity values seen: [40]
+std of bikes over most recent full week (2026-05-24..2026-05-31): 9.46  (rows: 1310)
+```
+
+All five thresholds from docs/phase-3.md met (details in
+data/DATA_AUDIT.md): 91 days ≥ 60; 10.0 min ≤ 60; values 0–40 within
+[0,45]; σ 9.46 > 2.0; exact station-name match with the live feed.
 
 Verdict: PASS
 
@@ -194,6 +226,21 @@ what changed.
 5. NO — next-riskiest standing assumption is A2 (historical data
    exists at usable granularity), which is exactly Phase 3's target.
 
+### 2026-07-09 — after Phase 3
+
+1. NO — nothing invalidated; A2, A4, A8 all CONFIRMED (statuses updated
+   in `docs/01-decisions.md`).
+2. YES (minor) — Phase 4's anchor procedure is unchanged, but its
+   held-out window is now concrete (last 14 full days = 2026-05-18 to
+   2026-05-31) and the irregular cadence needed a resampling rule.
+   Added a Data-cadence note to `docs/phase-4.md` cold-start context:
+   resample to a regular 10-min grid, forward-fill ≤ 3 steps, baseline
+   computed on the same grid.
+3. NO — paths and schema match what `docs/phase-4.md` assumes.
+4. NO.
+5. NO — Phase 4's target (model beats baseline) is the next open risk
+   on the spine.
+
 ## Session log (brief)
 
 - 2026-07-08 — Planning session: docs bundle created; no code written.
@@ -206,3 +253,8 @@ what changed.
   the deployed page and fixed (Dublin-time + minutes-ago). Anchor PASS
   (20 vs 20 bikes on mobile data). Live URL:
   https://dublin-bikes-forecast.onrender.com
+- 2026-07-09 — Build session (continued): Phase 3 executed and closed.
+  Located Smart Dublin monthly GBFS files (current through May 2026),
+  downloaded Mar–May 2026 (~232 MB, gitignored), audit script + tests
+  written, anchor PASS on all five thresholds. DATA_AUDIT.md records
+  schema, URLs, and observed stats.

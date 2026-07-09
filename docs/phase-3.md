@@ -1,7 +1,7 @@
 # Phase 3 — Historical-data audit
 
-**Status:** PROVISIONAL — revise after the previous phase closes (see
-re-planning checklist in docs/handover.md)
+**Status:** CLOSED — anchor PASS 2026-07-09 (see docs/handover.md →
+Anchor Results and data/DATA_AUDIT.md)
 
 **Prerequisite:** Phase 2 closed with its anchor result pasted in
 `docs/handover.md`.
@@ -124,7 +124,15 @@ The phase is done only when ALL of these hold:
 
 ## Iteration & deferral notes
 
-— (empty at planning time)
+- 2026-07-09: The current monthly files (Oct 2021 onward) are
+  GBFS-style (`last_reported`, `num_bikes_available`, `name`,
+  `capacity`), not the older quarterly format. Station `name` matches
+  the live JCDecaux feed exactly — no mapping table needed.
+- 2026-07-09: Files are ~77 MB/month → `data/raw/` added to
+  `.gitignore`; download URLs recorded in `data/DATA_AUDIT.md`.
+- 2026-07-09: Observed cadence is irregular (median 10 min, some 5-min
+  runs, max gap 1.2 h) — Phase 4's feature builder must resample to a
+  regular grid (note added to docs/phase-4.md).
 
 ## Close-out (mandatory — the phase is not done until every step is done)
 

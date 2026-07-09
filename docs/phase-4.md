@@ -33,8 +33,17 @@ re-planning checklist in docs/handover.md)
   - Train + evaluate: `python model/train.py`
   - Tests: `pytest tests/test_features.py`
 - **Prerequisites (accounts, credentials, sample data, installs):**
-  - No accounts. Needs `data/raw/` dataset from Phase 3 and the chosen
-    station name from `docs/handover.md`.
+  - No accounts. Needs `data/raw/` dataset from Phase 3 (three monthly
+    GBFS-style CSVs, Mar–May 2026; re-download URLs in
+    `data/DATA_AUDIT.md`) and the chosen station name from
+    `docs/handover.md`.
+  - **Data-cadence note (from Phase 3's audit):** timestamps are
+    irregular (median 10 min, some 5-min runs, gaps up to 1.2 h).
+    Before feature building, resample the station's series to a regular
+    10-minute grid with forward-fill limited to 3 steps (30 min);
+    leave longer gaps as NaN and drop feature rows that touch them.
+    The persistence baseline in Step 1 must be computed on this same
+    resampled grid so model and baseline see identical rows.
 
 ## Goal
 

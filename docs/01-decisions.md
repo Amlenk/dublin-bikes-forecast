@@ -114,7 +114,8 @@
   archives on data.gov.ie; cheapest training-data route.
 - **Revisit trigger:** Phase 3's audit finds no dataset meeting the
   thresholds in `docs/phase-3.md`.
-- **Status:** STANDING
+- **Status:** CONFIRMED by Phase 3 anchor (2026-07-09): monthly GBFS
+  files through May 2026; Mar–May audit passed every threshold.
 
 ### A3 — HF Spaces free tier suffices, no card
 - **Assumed:** A free Hugging Face account (no card) can create a Docker
@@ -144,7 +145,8 @@
 - **Default source:** Both publishers describe the same physical network.
 - **Revisit trigger:** Phase 3 finds no row for the chosen station (then:
   choose a station present in both, update handover).
-- **Status:** STANDING
+- **Status:** CONFIRMED by Phase 3 anchor (2026-07-09): exact name
+  match (`MOUNT STREET LOWER`), capacity 40 in both sources.
 
 ### A5 — No fixed application deadline
 - **Assumed:** There is no hard date by which this project must be on the
@@ -183,4 +185,5 @@
 - **Revisit trigger:** Phase 3's audit shows the chosen station's
   availability variance is near zero across a week (then pick another
   station present in both sources).
-- **Status:** STANDING
+- **Status:** CONFIRMED by Phase 3 anchor (2026-07-09): σ = 9.46 bikes
+  over the most recent full week (threshold was > 2.0).
