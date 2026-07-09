@@ -148,7 +148,7 @@ Verdict: PASS
 
 ### 2026-07-09 — Phase 4 anchor
 
-Step-1 baseline (committed 8bb21cd, before any model code):
+Step-1 baseline (committed 19a37c8, before any model code):
 `persistence_baseline_mae=2.0843` (2016 rows). Then
 `python model/train.py` observed output:
 
@@ -180,7 +180,7 @@ is_weekend 0). The Phase 5 anchor requires the deployed
 
 ### 2026-07-09 — Phase 5 anchor
 
-Deployed parity check (golden pair committed 1d0fdbc, before serving
+Deployed parity check (golden pair committed 90ac245, before serving
 code):
 
 ```
@@ -218,7 +218,7 @@ pointer:
 
 - Recruiter-facing README + resume bullets written ONLY from measured
   numbers (MAE vs baseline, live URL, pipeline run counts); add the live
-  URL to `Z:\Claude\resume` and LinkedIn — why deferred: needs real
+  URL to the HTML resume repo and LinkedIn — why deferred: needs real
   metrics that exist only after Phase 6 — earliest: after Phase 6.
 - Automated weekly retraining (GitHub Actions job retrains on ingested
   Postgres data, versions the artifact) — deferred: CVT completes with a

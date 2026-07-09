@@ -77,7 +77,8 @@
 ### D6 — Public GitHub repo under github.com/Amlenk
 - **Decision:** The project lives in a public GitHub repository named
   `dublin-bikes-forecast` under the user's existing account
-  (github.com/Amlenk); local working copy at `Z:\Claude\dublin-bikes-forecast`.
+  (github.com/Amlenk); local working copy is the repo root on the
+  developer machine.
 - **Alternatives rejected:** Private repo (recruiters can't see it); code
   only on the HF Space (GitHub is where recruiters look).
 - **Rationale (one line):** The repo itself is a recruiter-facing artifact
