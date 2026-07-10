@@ -57,17 +57,21 @@ tests passing (`pytest`). Not yet: database + scheduled ingestion
 
 ## The ONE next task
 
-**Re-run the Phase 6 anchor after the second unattended window.** The
-first anchor run FAILED on cadence (see Anchor Results 2026-07-10):
-GitHub executed the `*/30` cron only every ~1–4.5 h, firing D7's
-reopen condition. Per user decision (2026-07-10) the cron moved to
-off-peak minutes `7,37 * * * *` (D7 amended). A fresh ≥ 12-hour
-unattended window starts when that change is pushed to `main` — start
-time is recorded in Iteration notes below. Then repeat the anchor
-checks exactly as in phase-6.md. If cadence still misses, fall back to
-an external cron pinger (cron-job.org → GitHub API `workflow_dispatch`
-with a PAT — needs user account setup). The pipeline itself is proven
-(9/9 unattended runs green, all writes landed in Neon).
+**Re-run the Phase 6 anchor after the third unattended window**, which
+began **2026-07-10 21:29 UTC** when the cron-job.org pinger went live
+(D7 second amendment). History: anchor attempt 1 FAILED on cadence
+(`*/30` GitHub cron → median gap 2h31); attempt 2 (off-peak `7,37`
+cron) was abandoned mid-window as mathematically failed (4 runs in
+10 h). The trigger is now cron-job.org POSTing `workflow_dispatch`
+every 30 min (test verified: HTTP 204 → green run, 21:27 UTC).
+After ≥ 12 unattended hours (any time from 2026-07-11 09:29 UTC):
+(1) Actions tab — expect ≥ 18 `ingest` runs in the 12-h window,
+≥ 90% success, Event `workflow_dispatch` (per amended check (c) —
+see D7); occasional extra `schedule` runs from the backstop cron are
+fine; (2) Neon SQL per phase-6.md — expect count ≥ 15, distinct ts
+≥ 15, span ≥ 10 h for station_id 56. Then close the phase per its
+close-out. Pipeline write path already proven (all runs green to
+date).
 
 ## How to verify the previous phase actually works
 
@@ -435,3 +439,12 @@ what changed.
   48c5244), 2026-07-10 11:09 UTC; re-run the anchor next session
   (fallback if it fails again: external cron pinger →
   workflow_dispatch).
+- 2026-07-10 (late) — Second window abandoned mid-flight as
+  mathematically failed: `7,37` cron produced 4 runs in 10 h (same
+  ~2 h gaps — GitHub throttles this repo's schedule regardless of
+  minute choice). D7 amended a second time: user created a
+  fine-grained PAT (Actions r/w, repo-scoped) + cron-job.org account;
+  pinger POSTs workflow_dispatch every 30 min. Test trigger 21:27 UTC:
+  HTTP 204, run green. Third anchor window started 21:29 UTC;
+  anchor re-run due any time from 2026-07-11 09:29 UTC. Check (c)
+  amended (Event = workflow_dispatch now expected; see D7).

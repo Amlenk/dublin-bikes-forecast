@@ -96,6 +96,20 @@
     congestion mitigation; a fresh 12-hour anchor window decides
     whether this holds or an external cron pinger
     (workflow_dispatch via API) is needed.
+  - *Amended 2026-07-10 (second):* off-peak minutes disproven — only
+    4 runs in the first 10 h of the second window (same ~2 h gaps).
+    Trigger moved to an **external pinger**: cron-job.org (user's free
+    account) POSTs every 30 min to the GitHub API workflow-dispatch
+    endpoint for `ingest.yml` with a fine-grained PAT (repo-scoped,
+    Actions read/write; lives only in cron-job.org's header config).
+    Test trigger verified 21:27 UTC (HTTP 204 → run → success). The
+    GitHub `7,37` cron stays in the workflow as a redundant backstop;
+    duplicate snapshots are absorbed by `ON CONFLICT DO NOTHING`.
+    Anchor consequence: the Event column now legitimately reads
+    `workflow_dispatch`, so phase-6.md check (c) is amended from
+    "zero manual runs / Event = schedule" to "runs arrive on the
+    pinger's 30-min cadence with the dev machine off" — unattendedness
+    is now proven by cadence + machine-off, not by the event type.
 - **Alternatives rejected:** Always-on VM (not free); running on the HF
   Space (Spaces sleep; not a scheduler); Windows Task Scheduler on the
   laptop (defeats "unattended cloud pipeline" resume claim).
