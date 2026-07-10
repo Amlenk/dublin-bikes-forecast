@@ -431,6 +431,7 @@ what changed.
   (9 scheduled runs in 25.5 h, median gap 2h31; every run green and
   every write landed — pipeline sound, GitHub `*/30` cron unreliable).
   D7 reopened and amended per user: cron → `7,37 * * * *` (off-peak
-  minutes). Second unattended anchor window started at push,
-  2026-07-10 ~10:50 UTC; re-run the anchor next session (fallback if
-  it fails again: external cron pinger → workflow_dispatch).
+  minutes). Second unattended anchor window started at push (commit
+  48c5244), 2026-07-10 11:09 UTC; re-run the anchor next session
+  (fallback if it fails again: external cron pinger →
+  workflow_dispatch).
