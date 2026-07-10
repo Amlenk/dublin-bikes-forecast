@@ -2,7 +2,10 @@ name: ingest
 
 on:
   schedule:
-    - cron: "*/30 * * * *"
+    # Off-peak minutes: on-the-hour/half-hour slots are the most
+    # congested on GitHub's best-effort cron scheduler (D7 reopen,
+    # 2026-07-10 anchor FAIL at */30).
+    - cron: "7,37 * * * *"
   workflow_dispatch:
 
 jobs:

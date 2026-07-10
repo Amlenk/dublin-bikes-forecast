@@ -87,8 +87,15 @@
 
 ### D7 — Scheduler: GitHub Actions cron at 30-minute intervals (Phase 6)
 - **Decision:** Unattended ingestion runs as a GitHub Actions scheduled
-  workflow (`cron: "*/30 * * * *"`) in the public repo, writing to a Neon
+  workflow (`cron: "7,37 * * * *"`) in the public repo, writing to a Neon
   free-tier Postgres database.
+  - *Amended 2026-07-10:* reopen condition fired — the original
+    `*/30 * * * *` schedule was executed by GitHub only every ~1–4.5 h
+    (median gap 2h31 over the anchor window; see handover.md Anchor
+    Results 2026-07-10). Cron moved to off-peak minutes `7,37` as a
+    congestion mitigation; a fresh 12-hour anchor window decides
+    whether this holds or an external cron pinger
+    (workflow_dispatch via API) is needed.
 - **Alternatives rejected:** Always-on VM (not free); running on the HF
   Space (Spaces sleep; not a scheduler); Windows Task Scheduler on the
   laptop (defeats "unattended cloud pipeline" resume claim).

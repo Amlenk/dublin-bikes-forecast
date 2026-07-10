@@ -57,16 +57,17 @@ tests passing (`pytest`). Not yet: database + scheduled ingestion
 
 ## The ONE next task
 
-Run the Phase 6 **anchor** (docs/phase-6.md — the pipeline itself is
-built, deployed, and manually verified). The unattended window began
-2026-07-09 ~09:05 UTC after a successful manual `workflow_dispatch`
-run (114 rows written by the GitHub runner; snapshots table at 228
-rows). After ≥ 12 unattended hours: (1) count scheduled `ingest` runs
-and statuses in the Actions tab — expect ≥ 18 runs, ≥ 90% success,
-Event column `schedule`; (2) in Neon SQL (or via local psycopg with
-`.env`'s DATABASE_URL) run the query in docs/phase-6.md — expect
-count ≥ 15, distinct ts ≥ 15, span ≥ 10 h for station_id of MOUNT
-STREET LOWER. Then close the phase per its close-out.
+**Re-run the Phase 6 anchor after the second unattended window.** The
+first anchor run FAILED on cadence (see Anchor Results 2026-07-10):
+GitHub executed the `*/30` cron only every ~1–4.5 h, firing D7's
+reopen condition. Per user decision (2026-07-10) the cron moved to
+off-peak minutes `7,37 * * * *` (D7 amended). A fresh ≥ 12-hour
+unattended window starts when that change is pushed to `main` — start
+time is recorded in Iteration notes below. Then repeat the anchor
+checks exactly as in phase-6.md. If cadence still misses, fall back to
+an external cron pinger (cron-job.org → GitHub API `workflow_dispatch`
+with a PAT — needs user account setup). The pipeline itself is proven
+(9/9 unattended runs green, all writes landed in Neon).
 
 ## How to verify the previous phase actually works
 
@@ -198,6 +199,54 @@ in-range forecast; (c) feed age < 15 min.
 
 Verdict: PASS
 
+### 2026-07-10 — Phase 6 anchor
+
+Unattended window: 2026-07-09 09:05 UTC → 2026-07-10 10:39 UTC
+(~25.5 h, more than double the required 12 h; dev machine off).
+
+GitHub Actions tab (via public API, `ingest` workflow, run start times
+UTC):
+
+```
+2026-07-10 08:22  schedule  success
+2026-07-10 04:33  schedule  success
+2026-07-10 00:05  schedule  success
+2026-07-09 22:50  schedule  success
+2026-07-09 21:04  schedule  success
+2026-07-09 19:07  schedule  success
+2026-07-09 17:01  schedule  success
+2026-07-09 14:05  schedule  success
+2026-07-09 11:07  schedule  success
+```
+
+9 scheduled runs over the full 25.5 h window (expected ≥ 18 per
+12 h), 9/9 success (100%), zero manual runs inside the window. Gaps
+between runs: 1h15–4h28, median ≈ 2h31 — not the 30-minute cadence.
+
+Neon SQL (psycopg via `.env` DATABASE_URL, station_id 56 = MOUNT
+STREET LOWER, run 2026-07-10 10:40 UTC):
+
+```
+SELECT count(*), min(ts), max(ts), count(DISTINCT ts) FROM snapshots
+ WHERE station_id = 56 AND ts > now() - interval '12 hours';
+-- count 4 | min 2026-07-09 22:46:23+00 | max 2026-07-10 08:21:30+00
+-- distinct 4 | span 9 h 35 m
+```
+
+Expected count ≥ 15, distinct ≥ 15, span ≥ 10 h → not met. Full
+window since 09:05 UTC: 9 rows, 9 distinct ts, span 21 h 17 m; table
+total 1,254 rows = 228 pre-window + 9 × 114 (every scheduled run
+wrote all 114 stations; write path is 100% sound).
+
+Verdict: **FAIL on cadence** — checks (a) and (b) missed; check (c)
+(all runs `schedule`-triggered, 100% success) passed. Failure mode is
+exactly pre-mortem #4: GitHub's cron scheduler ran the `*/30` workflow
+every ~1–4.5 h, not every 30 min (documented best-effort behavior on
+free/public repos). Median gap 2h31 > 60 min → **D7's reopen
+condition FIRED**; scheduler must be re-planned before the phase can
+close. The pipeline itself (workflow → JCDecaux feed → Neon insert) is
+proven end-to-end by 9/9 green unattended runs.
+
 ## Locked decisions & assumptions
 
 All locked decisions and standing assumptions live in
@@ -213,6 +262,13 @@ pointer:
   `docs/00-essential-path.md`, `Dockerfile` (PORT env var), and
   `README.md` amended accordingly. The unused `space` git remote was
   removed; the HF write token is no longer needed (user may revoke it).
+- 2026-07-10 — **D7 reopened and AMENDED: cron moved to off-peak
+  minutes `7,37 * * * *`.** The Phase 6 anchor observed median
+  snapshot gap ≈ 2h31 with `*/30` (> 60 min threshold), firing D7's
+  reopen. User chose the congestion-mitigation option over an external
+  cron pinger (kept as fallback). `docs/01-decisions.md` D7 and
+  `.github/workflows/ingest.yml` amended; second anchor window
+  pending.
 
 ## Parking Lot (deferred items & future ideas)
 
@@ -371,3 +427,10 @@ what changed.
   manual workflow_dispatch run from GitHub's runner inserted 114 more
   (228 total) — secrets verified in CI. Unattended 12-hour anchor
   window started ~09:05 UTC; anchor to be run next session.
+- 2026-07-10 — Anchor session: Phase 6 anchor RUN → FAIL on cadence
+  (9 scheduled runs in 25.5 h, median gap 2h31; every run green and
+  every write landed — pipeline sound, GitHub `*/30` cron unreliable).
+  D7 reopened and amended per user: cron → `7,37 * * * *` (off-peak
+  minutes). Second unattended anchor window started at push,
+  2026-07-10 ~10:50 UTC; re-run the anchor next session (fallback if
+  it fails again: external cron pinger → workflow_dispatch).
