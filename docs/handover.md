@@ -51,27 +51,31 @@ Phase 5 CLOSED (anchor PASS 2026-07-09): **the walking skeleton is
 complete in its final form** — the live page serves model v1 (lags via
 train-time climatology; `POST /predict` parity endpoint returned the
 pre-committed golden value 17.9037 exactly). sklearn pinned to 1.9.0
-in requirements.txt; Docker image ships `model/artifacts/`. 17 unit
-tests passing (`pytest`). Not yet: database + scheduled ingestion
-(Phase 6), then Parking Lot (README/resume bullets first).
+in requirements.txt; Docker image ships `model/artifacts/`. 20 unit
+tests passing (`pytest`).
+
+Phase 6 CLOSED (anchor PASS 2026-07-11, on the third attempt):
+**unattended scheduled ingestion is live** — cron-job.org (user's free
+account) POSTs `workflow_dispatch` to the `ingest` GitHub Actions
+workflow every 30 min (fine-grained PAT, repo-scoped, Actions r/w;
+stored only in cron-job.org); a `7,37 * * * *` GitHub cron remains as
+backstop. Each run snapshots all 114 JCDecaux stations into Neon
+free-tier Postgres (`snapshots` table, `ON CONFLICT DO NOTHING`).
+GitHub's own cron proved unreliable for this repo (~2 h median gaps at
+both `*/30` and off-peak minutes — see Anchor Results 2026-07-10 and
+D7's two amendments). **All six planned phases are now CLOSED; the
+Parking Lot is the menu.**
 
 ## The ONE next task
 
-**Re-run the Phase 6 anchor after the third unattended window**, which
-began **2026-07-10 21:29 UTC** when the cron-job.org pinger went live
-(D7 second amendment). History: anchor attempt 1 FAILED on cadence
-(`*/30` GitHub cron → median gap 2h31); attempt 2 (off-peak `7,37`
-cron) was abandoned mid-window as mathematically failed (4 runs in
-10 h). The trigger is now cron-job.org POSTing `workflow_dispatch`
-every 30 min (test verified: HTTP 204 → green run, 21:27 UTC).
-After ≥ 12 unattended hours (any time from 2026-07-11 09:29 UTC):
-(1) Actions tab — expect ≥ 18 `ingest` runs in the 12-h window,
-≥ 90% success, Event `workflow_dispatch` (per amended check (c) —
-see D7); occasional extra `schedule` runs from the backstop cron are
-fine; (2) Neon SQL per phase-6.md — expect count ≥ 15, distinct ts
-≥ 15, span ≥ 10 h for station_id 56. Then close the phase per its
-close-out. Pipeline write path already proven (all runs green to
-date).
+**Consult the user: the planned phases are complete.** The Parking
+Lot below is the menu. Recommended first pick (per the Parking Lot's
+own ordering): the recruiter-facing README + resume bullets, written
+ONLY from measured numbers that now all exist — live URL, MAE
+1.6150 vs baseline 2.0843 (−22.5%), and the ingestion pipeline's
+observed run counts (30 runs / 100% success / 12 h window). The user
+accepts Phase 6 manually before anything further (phase-6.md
+close-out step 6).
 
 ## How to verify the previous phase actually works
 
@@ -251,6 +255,36 @@ condition FIRED**; scheduler must be re-planned before the phase can
 close. The pipeline itself (workflow → JCDecaux feed → Neon insert) is
 proven end-to-end by 9/9 green unattended runs.
 
+### 2026-07-11 — Phase 6 anchor (third attempt, after D7's second amendment)
+
+Unattended window: 2026-07-10 21:29 UTC → 2026-07-11 09:46 UTC
+(12 h 17 m; dev machine off; trigger = cron-job.org pinger).
+
+GitHub Actions (via public API, `ingest` workflow, runs since window
+start): **30 runs, 30/30 success (100%)** — 24 `workflow_dispatch`
+runs from the pinger landing exactly on the :00/:30 marks
+(22:00:32, 22:30:28, 23:00:33, … 09:00:30, 09:30:29 — no missed
+slot in 12 h) plus 6 `schedule` runs from the backstop cron.
+
+Neon SQL (psycopg via `.env` DATABASE_URL, station_id 56 = MOUNT
+STREET LOWER, run 2026-07-11 09:47 UTC):
+
+```
+SELECT count(*), min(ts), max(ts), count(DISTINCT ts) FROM snapshots
+ WHERE station_id = 56 AND ts > now() - interval '12 hours';
+-- count 28 | distinct 28
+-- min 2026-07-10 21:55:49+00 | max 2026-07-11 09:26:57+00
+-- span 11:31:08
+```
+
+Table total 5,098 rows. Against expected: (a) ≥ 18 runs ≥ 90%
+success → 30 at 100% ✓; (b) count ≥ 15, distinct ≥ 15, span ≥ 10 h →
+28 / 28 / 11h31m ✓; (c) as amended in D7 (Event `workflow_dispatch`
+on the pinger's 30-min cadence, machine off) → 24/24 slots hit ✓.
+Unit tests: 20/20 pass (`pytest`, includes the three Phase 6 guards).
+
+Verdict: **PASS**
+
 ## Locked decisions & assumptions
 
 All locked decisions and standing assumptions live in
@@ -273,6 +307,12 @@ pointer:
   cron pinger (kept as fallback). `docs/01-decisions.md` D7 and
   `.github/workflows/ingest.yml` amended; second anchor window
   pending.
+- 2026-07-10/11 — **D7 amended a second time (external cron-job.org
+  pinger → `workflow_dispatch`; GitHub cron kept as backstop), then
+  CONFIRMED in amended form by the Phase 6 anchor PASS** (24/24 pinger
+  slots in 12 unattended hours). Full detail in `docs/01-decisions.md`
+  D7. Operational dependency added: the pinger uses a fine-grained
+  PAT that expires ~2026-10-08 — see Parking Lot.
 
 ## Parking Lot (deferred items & future ideas)
 
@@ -305,6 +345,12 @@ pointer:
 - Broader job-search asset work (ATS keyword pass over the three
   tailored resumes, LinkedIn kit refresh) — deferred: outside this
   project's build plan — user-scheduled.
+- **Rotate the cron-job.org PAT before it expires (~2026-10-08,
+  90-day fine-grained token created 2026-07-11)** — when it expires
+  the pinger's dispatches start returning 401 and ingestion silently
+  degrades to the unreliable backstop cron. Regenerate the token in
+  GitHub → update the Authorization header in the cron-job.org job.
+  (Pairs naturally with the ingestion-failure-alerting item above.)
 
 ## Post-phase re-planning checklist (run after EVERY phase close)
 
@@ -401,6 +447,25 @@ what changed.
 5. NO — A6 (Neon, no card) and A4/D7 (GHA cron reliability) are the
    open assumptions and Phase 6 targets exactly them.
 
+### 2026-07-11 — after Phase 6
+
+1. YES (handled in-session) — D7's embedded assumption that GitHub's
+   cron alone delivers ~30-min cadence was invalidated by two failed
+   windows; D7 amended twice (final form: cron-job.org pinger →
+   `workflow_dispatch`, GitHub cron as backstop) and CONFIRMED by the
+   passing anchor. A6 CONFIRMED. No downstream phase files exist to
+   amend — this was the last planned phase.
+2. N/A — no next phase; the Parking Lot is the menu (user consulted).
+3. N/A for phase files; recorded for future work: ingestion runs show
+   Event `workflow_dispatch` (not `schedule`), cadence is owned by
+   cron-job.org, and rows accrue ~48/day/station in `snapshots`.
+4. NO — the spine is complete; nothing in the Parking Lot blocks it.
+   One time-bomb noted as a dated Parking Lot item: PAT expiry
+   ~2026-10-08.
+5. N/A — no next phase to re-order; riskiest standing item is the
+   PAT-expiry/silent-degradation pair, mitigated by the dated Parking
+   Lot entry and the alerting idea.
+
 ## Session log (brief)
 
 - 2026-07-08 — Planning session: docs bundle created; no code written.
@@ -448,3 +513,9 @@ what changed.
   HTTP 204, run green. Third anchor window started 21:29 UTC;
   anchor re-run due any time from 2026-07-11 09:29 UTC. Check (c)
   amended (Event = workflow_dispatch now expected; see D7).
+- 2026-07-11 — Anchor session: **Phase 6 anchor PASS — phase CLOSED;
+  all six planned phases done.** 30/30 green runs in the 12-h window
+  (24/24 pinger slots hit exactly), Neon 28 rows / 28 distinct ts /
+  11h31m span, 20/20 tests. A6 CONFIRMED; D7 confirmed in
+  twice-amended form. Next: user picks from the Parking Lot
+  (README/resume bullets recommended first).

@@ -110,6 +110,10 @@
     "zero manual runs / Event = schedule" to "runs arrive on the
     pinger's 30-min cadence with the dev machine off" — unattendedness
     is now proven by cadence + machine-off, not by the event type.
+  - *CONFIRMED in amended form by Phase 6 anchor (2026-07-11):* 24/24
+    pinger slots hit over 12 unattended hours, 30/30 runs green
+    (incl. backstop), Neon thresholds cleared with margin. See
+    handover.md Anchor Results 2026-07-11.
 - **Alternatives rejected:** Always-on VM (not free); running on the HF
   Space (Spaces sleep; not a scheduler); Windows Task Scheduler on the
   laptop (defeats "unattended cloud pipeline" resume claim).
@@ -189,7 +193,9 @@
   Postgres satisfying D5.
 - **Revisit trigger:** Phase 6 signup requires a card or connections from
   Actions are blocked (then D7's CSV-in-repo fallback applies).
-- **Status:** STANDING
+- **Status:** CONFIRMED by Phase 6 anchor (2026-07-11): email-only
+  signup, no card; 39 green runs to date wrote from GitHub runners to
+  Neon (5,098 rows) with zero connection failures.
 
 ### A7 — Dev environment: Windows 11, Python ≥3.11, git; no local Docker
 - **Assumed:** The build machine is Windows 11 with Python ≥3.11 and git
