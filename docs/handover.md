@@ -316,10 +316,12 @@ pointer:
 
 ## Parking Lot (deferred items & future ideas)
 
-- Recruiter-facing README + resume bullets written ONLY from measured
-  numbers (MAE vs baseline, live URL, pipeline run counts); add the live
-  URL to the HTML resume repo and LinkedIn — why deferred: needs real
-  metrics that exist only after Phase 6 — earliest: after Phase 6.
+- ~~Recruiter-facing README + resume bullets~~ — **DONE 2026-07-11**:
+  README rewritten from measured numbers; Dublin Bikes project added to
+  all three tailored resumes in `Z:\Claude\resume-tailored\` (DOCX+PDF
+  regenerated, 2 pages each) and to `Z:\Claude\LINKEDIN_PROFILE_KIT.md`
+  (About bullet, ready-to-paste Projects entry, skills keywords). User
+  still needs to paste the LinkedIn updates into linkedin.com manually.
 - Automated weekly retraining (GitHub Actions job retrains on ingested
   Postgres data, versions the artifact) — deferred: CVT completes with a
   once-trained model — earliest: after Phase 6.
