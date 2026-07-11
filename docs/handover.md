@@ -321,7 +321,7 @@ pointer:
   all three tailored resumes in `Z:\Claude\resume-tailored\` (DOCX+PDF
   regenerated, 2 pages each) and to `Z:\Claude\LINKEDIN_PROFILE_KIT.md`
   (About bullet, ready-to-paste Projects entry, skills keywords). User
-  still needs to paste the LinkedIn updates into linkedin.com manually.
+  confirmed LinkedIn itself updated 2026-07-11 (project + skill tags).
 - Automated weekly retraining (GitHub Actions job retrains on ingested
   Postgres data, versions the artifact) — deferred: CVT completes with a
   once-trained model — earliest: after Phase 6.
