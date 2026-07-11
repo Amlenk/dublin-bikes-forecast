@@ -517,5 +517,6 @@ what changed.
   all six planned phases done.** 30/30 green runs in the 12-h window
   (24/24 pinger slots hit exactly), Neon 28 rows / 28 distinct ts /
   11h31m span, 20/20 tests. A6 CONFIRMED; D7 confirmed in
-  twice-amended form. Next: user picks from the Parking Lot
-  (README/resume bullets recommended first).
+  twice-amended form. **Phase 6 accepted by the user same session.**
+  Next: user picks from the Parking Lot (README/resume bullets
+  recommended first).
