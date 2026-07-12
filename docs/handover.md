@@ -356,8 +356,14 @@ pointer:
   (23 total).
 - Multi-station support + map UI — deferred: CVT names one station
   (decision D4) — earliest: after Phase 5 closes (D4 reopen).
-- History charts / sparklines on the page — deferred: flesh — after
-  skeleton.
+- ~~History charts / sparklines on the page~~ — **DONE 2026-07-12**:
+  server-rendered inline-SVG 24h availability sparkline
+  (`app/sparkline.py`, no JS, native tooltip hovers, y = 0..capacity,
+  true time-scale x) fed by the same single snapshots query as the
+  real lags. Anchor: deployed page rendered 56 points = 56 Neon rows
+  in the window (exact match); visual check via browser screenshot;
+  endpoint labels made relative (24 h ago / now) after the check.
+  5 new tests (34 total). Omitted entirely without DATABASE_URL.
 - Uncertainty intervals (quantile models) — deferred: flesh — after
   Phase 6.
 - ~~CI: pytest on push + badge in README~~ — **DONE 2026-07-11**:
