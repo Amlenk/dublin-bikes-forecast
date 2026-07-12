@@ -1,12 +1,12 @@
 """Model-v1 serving: loads the Phase-4 artifact and predicts bikes at
 t+60 minutes.
 
-Serving-features strategy (v1, documented in docs/phase-5.md): the lag
-features are approximated by the hour-of-week climatology exported at
-train time (model/artifacts/climatology.csv) because the service does
-not yet store recent true history (see Parking Lot). `bikes_now` is the
-live value; calendar features come from the feed timestamp (Dublin
-time).
+Serving-features strategy: lag features default to the hour-of-week
+climatology exported at train time (model/artifacts/climatology.csv);
+when app/lags.py can read real recent values from the snapshots table
+they overlay the climatology per-lag (real history beats climatology
+wherever it exists — see docs/handover.md 2026-07-11). `bikes_now` is
+the live value; calendar features come from the feed timestamp.
 """
 import csv
 from datetime import datetime, timedelta
@@ -46,8 +46,10 @@ def _clim(dt: datetime) -> float:
     return CLIMATOLOGY[dt.weekday() * 24 + dt.hour]
 
 
-def build_serving_features(bikes_now: int, now: datetime) -> dict:
-    return {
+def build_serving_features(
+    bikes_now: int, now: datetime, real_lags: dict | None = None
+) -> dict:
+    features = {
         "bikes_now": float(bikes_now),
         "lag_1h": _clim(now - timedelta(hours=1)),
         "lag_2h": _clim(now - timedelta(hours=2)),
@@ -61,6 +63,9 @@ def build_serving_features(bikes_now: int, now: datetime) -> dict:
         "dow": float(now.weekday()),
         "is_weekend": 1.0 if now.weekday() >= 5 else 0.0,
     }
+    if real_lags:
+        features.update(real_lags)
+    return features
 
 
 def predict_from_features(features: dict) -> float:
@@ -70,6 +75,8 @@ def predict_from_features(features: dict) -> float:
     return float(MODEL.predict(X)[0])
 
 
-def forecast_bikes(bikes_now: int, now: datetime, capacity: int) -> int:
-    raw = predict_from_features(build_serving_features(bikes_now, now))
+def forecast_bikes(
+    bikes_now: int, now: datetime, capacity: int, real_lags: dict | None = None
+) -> int:
+    raw = predict_from_features(build_serving_features(bikes_now, now, real_lags))
     return max(0, min(capacity, round(raw)))

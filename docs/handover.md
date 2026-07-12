@@ -325,8 +325,19 @@ pointer:
 - Automated weekly retraining (GitHub Actions job retrains on ingested
   Postgres data, versions the artifact) — deferred: CVT completes with a
   once-trained model — earliest: after Phase 6.
-- Serving reads recent lags from Postgres instead of climatology lookup —
-  deferred: flesh for the CVT — earliest: after Phase 6.
+- ~~Serving reads recent lags from Postgres instead of climatology
+  lookup~~ — **BUILT 2026-07-11, activation pending a user step**:
+  `app/lags.py` rebuilds the exact training grid (10-min buckets,
+  ffill limit 3) from the station's recent `snapshots` rows and
+  overlays real values per-lag onto climatology (missing lags — e.g.
+  lag_1w until ~2026-07-16 — stay climatology); the page's meta line
+  names which lags are live. No DATABASE_URL ⇒ behavior identical to
+  before (verified: same forecast, golden 17.9037 intact; 6 new unit
+  tests, 29 total). **USER STEP: add DATABASE_URL (Neon connection
+  string from `.env`) as an environment variable on the Render
+  service.** Anchor to run after that: deployed page's meta line
+  shows "live history (…)" lag names, golden /predict still 17.9037,
+  and the shown forecast reproducible locally from the same Neon rows.
 - ~~Historical backfill of `data/raw/` into Postgres~~ — **DONE
   2026-07-11**: `scripts/backfill_history.py` loaded 1,880,190 rows /
   115 stations (2026-03-01..2026-05-31) into a new `history` table

@@ -42,7 +42,8 @@
       <p class="meta">
         Feed updated {{ age_minutes }} min ago
         ({{ snapshot.updated.strftime("%H:%M") }} Dublin time)<br>
-        Model: {{ model_label }} &middot; Station capacity: {{ snapshot.capacity }}
+        Model: {{ model_label }} &middot; Station capacity: {{ snapshot.capacity }}<br>
+        Lags: {% if live_lag_names %}live history ({{ live_lag_names|join(", ") }}), climatology for the rest{% else %}climatology{% endif %}
       </p>
     {% endif %}
   </div>
