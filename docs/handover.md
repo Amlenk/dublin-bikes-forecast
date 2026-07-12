@@ -555,3 +555,12 @@ what changed.
   serving lags from Postgres → weekly retraining → alerting. NOTE:
   serving-lags changes live prediction behavior — needs a fresh
   golden-value protocol and its own anchor; plan before building.
+- 2026-07-12 — Serving-lags session: built, tested (29/29), CI green
+  (c7c33af), deployed. Design: /predict parity endpoint takes explicit
+  features, so the golden value 17.9037 is UNAFFECTED (verified on the
+  deployed endpoint post-deploy); only the homepage's feature-building
+  changes, and only when DATABASE_URL is present. Deployed page
+  currently shows "Lags: climatology" (env var not yet set on Render).
+  AWAITING USER: add DATABASE_URL on the Render service (dashboard →
+  Environment), then run the activation anchor in the Parking Lot
+  entry.
