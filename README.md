@@ -1,5 +1,7 @@
 # Dublin Bikes Forecast
 
+![CI](https://github.com/Amlenk/dublin-bikes-forecast/actions/workflows/ci.yml/badge.svg)
+
 A live, end-to-end ML service: it shows the current bike availability at
 a Dublin Bikes station and a trained model's one-hour-ahead forecast,
 served from a Dockerized FastAPI app with a fully unattended data
