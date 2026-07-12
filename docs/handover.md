@@ -327,16 +327,29 @@ pointer:
   once-trained model — earliest: after Phase 6.
 - Serving reads recent lags from Postgres instead of climatology lookup —
   deferred: flesh for the CVT — earliest: after Phase 6.
-- Historical backfill of `data/raw/` into Postgres — deferred: flesh —
-  earliest: after Phase 6.
+- ~~Historical backfill of `data/raw/` into Postgres~~ — **DONE
+  2026-07-11**: `scripts/backfill_history.py` loaded 1,880,190 rows /
+  115 stations (2026-03-01..2026-05-31) into a new `history` table
+  (schema in db/schema.sql; COPY-based, refuses to run twice).
+  Deliberately SEPARATE from `snapshots`: Smart Dublin and JCDecaux
+  use different station-id spaces — join on station_name (Phase 3
+  verified exact match). External check: MOUNT STREET LOWER count in
+  Neon = 16,874, exactly matching DATA_AUDIT.md's Phase 3 audit.
+  Neon usage after load: 208 MB of the free 512 MB. 3 new unit tests
+  (23 total).
 - Multi-station support + map UI — deferred: CVT names one station
   (decision D4) — earliest: after Phase 5 closes (D4 reopen).
 - History charts / sparklines on the page — deferred: flesh — after
   skeleton.
 - Uncertainty intervals (quantile models) — deferred: flesh — after
   Phase 6.
-- CI: pytest on push + badge in README — deferred: flesh (resume
-  keyword, cheap to add) — any time after Phase 2.
+- ~~CI: pytest on push + badge in README~~ — **DONE 2026-07-11**:
+  `.github/workflows/ci.yml` runs the 20-test suite on every push/PR
+  (needs `httpx` + `psycopg[binary]` beyond requirements.txt); first
+  run green on 21e0f11 (GitHub Actions record); badge in README.
+  NOTE for user: Render dashboard → the service → Settings → Build &
+  Deploy → set Auto-Deploy to "After CI Checks Pass" to make broken
+  pushes unable to reach the live site.
 - Drift monitoring / ingestion-failure alerting — deferred: flesh —
   after Phase 6.
 - Deep-learning model comparison (LSTM vs gradient boosting write-up) —
@@ -522,3 +535,12 @@ what changed.
   twice-amended form. **Phase 6 accepted by the user same session.**
   Next: user picks from the Parking Lot (README/resume bullets
   recommended first).
+- 2026-07-11 (later) — Parking Lot session: README/resume/LinkedIn
+  item DONE (see Parking Lot). CI DONE: pytest on every push + README
+  badge, first run green (21e0f11). Historical backfill DONE:
+  1,880,190 rows into new `history` table, externally cross-checked
+  against DATA_AUDIT.md (16,874 MOUNT STREET LOWER rows exact match);
+  Neon at 208/512 MB. User-approved sequence continues with:
+  serving lags from Postgres → weekly retraining → alerting. NOTE:
+  serving-lags changes live prediction behavior — needs a fresh
+  golden-value protocol and its own anchor; plan before building.
