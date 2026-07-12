@@ -55,10 +55,8 @@ def build_sparkline(points: list, capacity: int) -> str | None:
         f'stroke-width="1" stroke-dasharray="2,3"/>'
         f'<text x="{x0 - 4}" y="{y0 + 3}" text-anchor="end" font-size="9" fill="{MUTED}">0</text>'
         f'<text x="{x0 - 4}" y="{y1 + 3}" text-anchor="end" font-size="9" fill="{MUTED}">{capacity}</text>'
-        f'<text x="{x0}" y="{HEIGHT - 3}" font-size="9" fill="{MUTED}">'
-        f"{t0.astimezone(DUBLIN):%H:%M}</text>"
-        f'<text x="{x1}" y="{HEIGHT - 3}" text-anchor="end" font-size="9" fill="{MUTED}">'
-        f"{t1.astimezone(DUBLIN):%H:%M}</text>"
+        f'<text x="{x0}" y="{HEIGHT - 3}" font-size="9" fill="{MUTED}">24 h ago</text>'
+        f'<text x="{x1}" y="{HEIGHT - 3}" text-anchor="end" font-size="9" fill="{MUTED}">now</text>'
         f'<polygon points="{area_pts}" fill="{LINE}" opacity="0.12"/>'
         f'<polyline points="{line_pts}" fill="none" stroke="{LINE}" stroke-width="2" '
         f'stroke-linejoin="round" stroke-linecap="round"/>'
