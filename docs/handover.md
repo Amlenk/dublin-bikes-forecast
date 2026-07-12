@@ -326,7 +326,13 @@ pointer:
   Postgres data, versions the artifact) — deferred: CVT completes with a
   once-trained model — earliest: after Phase 6.
 - ~~Serving reads recent lags from Postgres instead of climatology
-  lookup~~ — **BUILT 2026-07-11, activation pending a user step**:
+  lookup~~ — **DONE 2026-07-12 (anchor PASS)**: user set DATABASE_URL
+  on Render; deployed page shows "Lags: live history (lag_1h,
+  lag_24h, lag_2h, roll_3h), climatology for the rest"; deployed
+  golden /predict = 17.9037 exact; independent local recomputation
+  from the same Neon rows + live feed reproduced the deployed
+  forecast exactly (bikes=1 → forecast=1, same lag set). lag_1w goes
+  live automatically ~2026-07-16. Original build notes:
   `app/lags.py` rebuilds the exact training grid (10-min buckets,
   ffill limit 3) from the station's recent `snapshots` rows and
   overlays real values per-lag onto climatology (missing lags — e.g.
@@ -564,3 +570,8 @@ what changed.
   AWAITING USER: add DATABASE_URL on the Render service (dashboard →
   Environment), then run the activation anchor in the Parking Lot
   entry.
+- 2026-07-12 (later) — User set DATABASE_URL on Render; activation
+  anchor PASS (see Parking Lot entry): live-history lags shown on the
+  deployed page, golden intact, forecast independently reproduced.
+  The live site now serves real recent lags. Next in the approved
+  sequence: automated weekly retraining, then alerting.
