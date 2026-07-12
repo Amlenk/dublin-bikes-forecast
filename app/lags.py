@@ -54,21 +54,35 @@ def lags_from_rows(rows: list, now: datetime) -> dict:
     return out
 
 
-def recent_lags(station_name: str, now: datetime) -> tuple:
-    """Returns (lags dict or None, sorted list of live lag names)."""
+def fetch_rows(station_name: str, now: datetime) -> list | None:
+    """The station's snapshot rows for the last WINDOW_DAYS, oldest
+    first. None when DATABASE_URL is absent or the DB is unreachable —
+    callers then behave exactly as before this module existed."""
     url = os.getenv("DATABASE_URL")
     if not url:
-        return None, []
+        return None
     try:
         import psycopg
 
         with psycopg.connect(url, connect_timeout=CONNECT_TIMEOUT_S) as conn:
-            rows = conn.execute(
+            return conn.execute(
                 "SELECT ts, available_bikes FROM snapshots"
                 " WHERE station_name = %s AND ts > %s ORDER BY ts",
                 (station_name, now - timedelta(days=WINDOW_DAYS)),
             ).fetchall()
     except Exception:
+        return None
+
+
+def points_last_24h(rows: list, now: datetime) -> list:
+    cutoff = now - timedelta(hours=24)
+    return [(ts, bikes) for ts, bikes in rows if ts >= cutoff]
+
+
+def recent_lags(station_name: str, now: datetime) -> tuple:
+    """Returns (lags dict or None, sorted list of live lag names)."""
+    rows = fetch_rows(station_name, now)
+    if rows is None:
         return None, []
     lags = lags_from_rows(rows, now)
     return (lags or None), sorted(lags)

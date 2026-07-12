@@ -12,8 +12,9 @@ from app.forecast import (
     forecast_bikes,
     predict_from_features,
 )
-from app.lags import recent_lags
+from app.lags import fetch_rows, lags_from_rows, points_last_24h
 from app.live import STATION_NAME, LiveFeedError, get_snapshot
+from app.sparkline import build_sparkline
 
 app = FastAPI(title="Dublin Bikes Forecast")
 templates = Jinja2Templates(
@@ -50,7 +51,13 @@ def index(request: Request):
         age_min = int(
             (datetime.now(timezone.utc) - snap.updated).total_seconds() // 60
         )
-        real_lags, live_lag_names = recent_lags(STATION_NAME, snap.updated)
+        rows = fetch_rows(STATION_NAME, snap.updated)
+        real_lags = lags_from_rows(rows, snap.updated) or None if rows else None
+        sparkline = (
+            build_sparkline(points_last_24h(rows, snap.updated), snap.capacity)
+            if rows
+            else None
+        )
         ctx = {
             "error": None,
             "snapshot": snap,
@@ -60,7 +67,8 @@ def index(request: Request):
             ),
             "model_label": MODEL_LABEL,
             "horizon": HORIZON_MINUTES,
-            "live_lag_names": live_lag_names,
+            "live_lag_names": sorted(real_lags) if real_lags else [],
+            "sparkline": sparkline,
         }
     except LiveFeedError as exc:
         ctx = {"error": str(exc), "snapshot": None}

@@ -17,6 +17,9 @@
     .row .value { font-size: 1.6rem; font-weight: 700; }
     .meta { margin-top: 1rem; font-size: .8rem; color: #718096; }
     .error { color: #c53030; font-weight: 600; }
+    .chart { margin-top: 1rem; border-top: 1px solid #e2e8f0; padding-top: .75rem; }
+    .chart p { font-size: .8rem; color: #718096; margin: 0 0 .25rem; }
+    .chart svg { display: block; width: 100%; height: auto; }
   </style>
 </head>
 <body>
@@ -39,6 +42,12 @@
         <span>Free stands</span>
         <span class="value">{{ snapshot.stands }}</span>
       </div>
+      {% if sparkline %}
+      <div class="chart">
+        <p>Bikes available — last 24 h (stored snapshots)</p>
+        {{ sparkline|safe }}
+      </div>
+      {% endif %}
       <p class="meta">
         Feed updated {{ age_minutes }} min ago
         ({{ snapshot.updated.strftime("%H:%M") }} Dublin time)<br>
